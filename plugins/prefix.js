@@ -13,7 +13,7 @@ malvin({
 
   alias: ["prefix"],
 
-  react: "🔧",
+  react: "🪄",
 
   desc: "Change the bot's command prefix.",
 
@@ -31,7 +31,7 @@ malvin({
 
   setPrefix(newPrefix); // updates without reboot
 
-  return reply(`✅ Prefix updated to *${newPrefix}* — no restart needed.`);
+  return reply(`✅ Prefix updated to *${newPrefix}* `);
 
 });
 
