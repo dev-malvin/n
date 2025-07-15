@@ -73,10 +73,10 @@ ${generateSettingsList()}
         }, { quoted: mek });
 
         await conn.sendMessage(from, {
-            audio: fs.readFileSync('./autos/hello.m4a'),
-            mimetype: 'audio/mp4',
-            ptt: true
-        }, { quoted: mek });
+      audio: { url: 'https://files.catbox.moe/wz8rh7.mp3' },
+      mimetype: 'audio/mp4',
+      ptt: true
+    }, { quoted: mek });
 
     } catch (e) {
         console.error("❌ Error in env command:", e);
