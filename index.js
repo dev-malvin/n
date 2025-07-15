@@ -318,7 +318,8 @@ console.log(chalk.cyan(summary.trim()));
 // anti-call
 
 const callAttempts = new Map();
-const callCooldowns = new Map(); // tracks last warning time
+const callAttempts = new Map();
+const callCooldowns = new Map();
 
 conn.ev.on('call', async (calls) => {
   try {
@@ -330,33 +331,36 @@ conn.ev.on('call', async (calls) => {
       const from = call.from;
       const callId = call.id;
 
-      // Reject the call
+      // Reject call immediately
       await conn.rejectCall(callId, from);
 
-      // Attempt count
       const attempts = callAttempts.get(from) || 0;
       callAttempts.set(from, attempts + 1);
 
-      // Rate-limiting warnings (once every 5 seconds per user)
+      // Rate limit: Only send a message every 10s max
       const now = Date.now();
-      const lastWarned = callCooldowns.get(from) || 0;
-      const cooldown = 5 * 1000;
+      const last = callCooldowns.get(from) || 0;
+
+      if (now - last < 10000) continue; // skip message spam
+
+      callCooldowns.set(from, now); // update last warn
 
       if (attempts + 1 >= 3) {
-        await conn.updateBlockStatus(from, "block"); // Block user
+        // Ban after 3rd attempt
+        await conn.updateBlockStatus(from, "block");
         await conn.sendMessage(from, {
-          text: '*⛔ You have been banned for calling the bot multiple times.*\n*Contact the owner to be unbanned.*'
+          text: '*⛔ You have been banned for calling the bot multiple times.*\n*Contact the owner to get unbanned.*'
         });
-        console.log(`🚫 Banned user for repeated calls: ${from}`);
-      } else if (now - lastWarned > cooldown) {
-        callCooldowns.set(from, now); // Update last warning time
+        console.log(`🚫 User banned for repeated calls: ${from}`);
+      } else {
+        // Single warning message
         await conn.sendMessage(from, {
-          text: config.REJECT_MSG || `*📞 Calling is not allowed. (${attempts + 1}/3 warning)*`
+          text: config.REJECT_MSG || `*📵 Calls are not allowed on this number unless you have permission. (${attempts + 1}/3)*`
         });
-        console.log(`⚠️ Call warning ${attempts + 1}/3 sent to ${from}`);
+        console.log(`⚠️ Warning ${attempts + 1}/3 sent to ${from}`);
       }
 
-      // Auto clear memory after 30 minutes
+      // Auto-clear after 30 minutes
       setTimeout(() => {
         callAttempts.delete(from);
         callCooldowns.delete(from);
@@ -366,7 +370,6 @@ conn.ev.on('call', async (calls) => {
     console.error("❌ Anti-call error:", err);
   }
 });
-
 
 	
 //=========WELCOME & GOODBYE =======
