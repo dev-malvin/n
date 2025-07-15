@@ -38,7 +38,7 @@ malvin({
 
     // Send image + caption
     await conn.sendMessage(from, {
-      image: { url: 'https://files.catbox.moe/v1rf80.jpg' },
+      image: { url: 'https://files.catbox.moe/01f9y1.jpg' },
       caption: `
 ╭── ❍ 𝙼𝙰𝙻𝚅𝙸𝙽-𝚇𝙳 ❍
 │ ✦ 𝙽𝚊𝚖𝚎   : *${ownerName}*
