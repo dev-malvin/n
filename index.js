@@ -107,7 +107,7 @@ async function loadSession() {
         }
 
         console.log(chalk.yellow('[ ⏳ ] Downloading creds data...'));
-        console.log(chalk.orange('[ 🆔️ ] Downloading MEGA.nz session...'));
+        console.log(chalk.cyan('[ 🆔️ ] Downloading MEGA.nz session...'));
         
         // Remove "malvin~" prefix if present, otherwise use full SESSION_ID
         const megaFileId = config.SESSION_ID.startsWith('malvin~') 
