@@ -281,7 +281,7 @@ let summary = `📡 Newsletter Follow Status:\n\n` +
               (failed.length > 0 ? `❌ Failed: ${failed.length} channel(s)\n\n` : `\n`) +
               `💡 Tip: Following these channels keeps your bot updated with the latest news and features.`;
 
-console.log(summary.trim());
+console.log(chalk.blue(summary.trim()));
 
 
 
@@ -291,7 +291,7 @@ console.log(summary.trim());
         }
 
         if (qr) {
-            console.log('[ 🟢 ] Scan the QR code to connect or use session ID');
+            console.log(chalk.red('[ 🟢 ] Scan the QR code to connect or use session ID'));
         }
     });
     
