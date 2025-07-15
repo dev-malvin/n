@@ -317,7 +317,7 @@ console.log(chalk.cyan(summary.trim()));
 
 // anti-call
 
-const callAttempts = new Map();
+
 const callAttempts = new Map();
 const callCooldowns = new Map();
 
