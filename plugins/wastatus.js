@@ -1,56 +1,59 @@
 const { malvin } = require("../malvin");
-const { downloadContentFromMessage } = require("@whiskeysockets/baileys");
+const { downloadContentFromMessage, getContentType } = require("@whiskeysockets/baileys");
 
 malvin({
   pattern: "post",
   alias: ["poststatus", "status", "story", "repost", "reshare"],
-  react: "📝",
+  react: "📤",
   desc: "Post replied media to bot's WhatsApp status",
   category: "owner",
   filename: __filename
-}, 
-async (conn, mek, m, { isOwner, reply }) => {
+}, async (conn, mek, m, { isOwner, reply }) => {
   try {
     if (!isOwner) return reply("🚫 *Owner-only command.*");
 
+    if (!m.quoted || !m.quoted.message) {
+      return reply("⚠️ *Reply to an image, video, or audio message.*");
+    }
+
     const quoted = m.quoted;
-    if (!quoted || !quoted.message) {
-      return reply("⚠️ *Reply to an image, video, or audio to post to status.*");
-    }
-
-    const messageType = Object.keys(quoted.message)[0];
+    const messageType = getContentType(quoted.message);
     const mediaMsg = quoted.message[messageType];
+
+    if (!["imageMessage", "videoMessage", "audioMessage"].includes(messageType)) {
+      return reply("❌ *Unsupported media type. Only image, video, and audio are allowed.*");
+    }
+
     const mime = mediaMsg.mimetype || '';
-    const caption = mediaMsg.caption || '';
+    const caption = mediaMsg.caption || m.text || '';
 
-    const isImage = messageType === "imageMessage";
-    const isVideo = messageType === "videoMessage";
-    const isAudio = messageType === "audioMessage";
-
-    if (!isImage && !isVideo && !isAudio) {
-      return reply("❌ *Unsupported media type. Only image, video, and audio allowed.*");
-    }
-
-    // Download media buffer
-    const stream = await downloadContentFromMessage(mediaMsg, isImage ? 'image' : isVideo ? 'video' : 'audio');
+    // Download media
+    const stream = await downloadContentFromMessage(mediaMsg, messageType.replace("Message", "").toLowerCase());
     let buffer = Buffer.from([]);
-    for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk]);
-
-    // Prepare status content
-    let statusContent;
-    if (isImage) {
-      statusContent = { image: buffer, caption };
-    } else if (isVideo) {
-      statusContent = { video: buffer, caption };
-    } else {
-      statusContent = { audio: buffer, mimetype: "audio/mp4", ptt: mediaMsg.ptt || false };
+    for await (const chunk of stream) {
+      buffer = Buffer.concat([buffer, chunk]);
     }
 
-    await conn.sendMessage("status@broadcast", statusContent);
-    return reply("✅ *Status posted successfully!*");
+    // Prepare media content
+    let statusMedia = {};
+    if (messageType === "imageMessage") {
+      statusMedia = { image: buffer, caption };
+    } else if (messageType === "videoMessage") {
+      statusMedia = { video: buffer, caption };
+    } else if (messageType === "audioMessage") {
+      statusMedia = {
+        audio: buffer,
+        mimetype: "audio/mp4",
+        ptt: mediaMsg?.ptt || false
+      };
+    }
 
-  } catch (e) {
-    console.error("❌ Error posting status:", e);
-    return reply("⚠️ *Failed to post status:*\n" + e.message);
+    // Send to status
+    await conn.sendMessage("status@broadcast", statusMedia);
+    reply("✅ *Status posted successfully!*");
+
+  } catch (err) {
+    console.error("❌ Error in .post command:", err);
+    reply(`⚠️ *Failed to post status:* ${err.message}`);
   }
 });
