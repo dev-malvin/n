@@ -11,7 +11,7 @@ const tinyCaps = (text) => {
 };
 
 malvin({
-  pattern: "owner",
+  pattern: "dev",
   alias: ["developer", "dev"],
   desc: "Displays the developer info",
   category: "owner",
