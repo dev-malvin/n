@@ -1,67 +1,65 @@
 /*
-Project Name : MALVIN XMD
-Creator      : Malvin King ( Mr Lord Malvin )
-Repo         : https//github.com/kingmalvn/MALVIN-XMD
-Support      : wa.me/263714757857
+🔧 Project      : MALVIN-XD
+👑 Creator      : Malvin King (Mr. Lord Malvin)
+📦 Repository   : https://github.com/XdKing2/MALVIN-XD
+📞 Support      : https://wa.me/263714757857
 */
-
-
-
 
 const { malvin } = require('../malvin');
 const config = require('../settings');
 
 malvin({
-    pattern: "user",
-    react: "✅", 
-    desc: "Get owner number",
-    category: "main",
-    filename: __filename
-}, 
-async (conn, mek, m, { from }) => {
-    try {
-        const ownerNumber = config.OWNER_NUMBER; // Fetch owner number from config
-        const ownerName = config.OWNER_NAME;     // Fetch owner name from config
+  pattern: "owner",
+  react: "📞",
+  desc: "Send bot owner's contact",
+  category: "main",
+  filename: __filename
+}, async (conn, mek, m, { from, reply }) => {
+  try {
+    const ownerName = config.OWNER_NAME || "Malvin King";
+    const ownerNumber = config.OWNER_NUMBER || "263714757857";
 
-        const vcard = 'BEGIN:VCARD\n' +
-                      'VERSION:3.0\n' +
-                      `FN:${ownerName}\n` +  
-                      `TEL;type=CELL;type=VOICE;waid=${ownerNumber.replace('+', '')}:${ownerNumber}\n` + 
-                      'END:VCARD';
+    // Build vCard contact
+    const vcard = [
+      "BEGIN:VCARD",
+      "VERSION:3.0",
+      `FN:${ownerName}`,
+      `TEL;type=CELL;type=VOICE;waid=${ownerNumber.replace('+', '')}:${ownerNumber}`,
+      "END:VCARD"
+    ].join('\n');
 
-        // Send the vCard
-        const sentVCard = await conn.sendMessage(from, {
-            contacts: {
-                displayName: ownerName,
-                contacts: [{ vcard }]
-            }
-        });
+    // Send vCard contact
+    await conn.sendMessage(from, {
+      contacts: {
+        displayName: ownerName,
+        contacts: [{ vcard }]
+      }
+    });
 
-        // Send the owner contact message with image and audio
-        await conn.sendMessage(from, {
-            image: { url: 'https://files.catbox.moe/v1rf80.jpg' }, // Image URL from your request
-            caption: `
-╭┈┈❍ ᴍᴀʟᴠɪɴ xᴅ ❍
-┊• *Here are the user details*
-┊• *ɴᴀᴍᴇ* : ${ownerName}
-┊• *ɴᴜᴍʙᴇʀ*: ${ownerNumber}
-┆• *ᴠᴇʀsɪᴏɴ*: ${config.version}
-╰┈┈┈┈┈┈┈⭘
-> © sᴛᴀʏ ᴄᴏɴɴᴇᴄᴛᴇᴅ ғᴏʀ ғᴀɴᴛᴀsᴛɪᴄ ᴜᴘᴅᴀᴛᴇs!`, // Display the owner's details
-            contextInfo: {
-                mentionedJid: [`${ownerNumber.replace('+', '')}@s.whatsapp.net`], 
-                forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363398430045533@newsletter',
-                    newsletterName: 'User Owner',
-                    serverMessageId: 143
-                }            
-            }
-        }, { quoted: mek });
+    // Send image + caption
+    await conn.sendMessage(from, {
+      image: { url: 'https://files.catbox.moe/v1rf80.jpg' },
+      caption: `
+╭── ❍ 𝙼𝙰𝙻𝚅𝙸𝙽-𝚇𝙳 ❍
+│ ✦ 𝙽𝚊𝚖𝚎   : *${ownerName}*
+│ ✦ 𝙽𝚞𝚖𝚋𝚎𝚛 : *${ownerNumber}*
+│ ✦ 𝚅𝚎𝚛𝚜𝚒𝚘𝚗 : *${config.version || 'Unknown'}*
+╰───────────────⭓
+> Stay connected for 🔥 updates!`,
+      contextInfo: {
+        mentionedJid: [`${ownerNumber.replace('+', '')}@s.whatsapp.net`],
+        forwardingScore: 999,
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: '120363398430045533@newsletter',
+          newsletterName: 'User Owner',
+          serverMessageId: 143
+        }
+      }
+    }, { quoted: mek });
 
-    } catch (error) {
-        console.error(error);
-        reply(`An error occurred: ${error.message}`);
-    }
+  } catch (error) {
+    console.error("❌ Error in .owner command:", error);
+    reply(`⚠️ An error occurred: ${error.message}`);
+  }
 });
