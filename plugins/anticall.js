@@ -1,32 +1,33 @@
+const fs = require('fs');
+const path = require('path');
+const config = require('../settings');
+const { malvin } = require('../malvin');
 
-
-const { malvin, commands } = require('../malvin');
-const config = require('../settings')
+const settingsPath = path.join(__dirname, '../settings.js');
 
 malvin({
-     on:"body"},async(conn,mek,m,{from,body,isCmd,isGroup,isOwner,isAdmins,groupAdmins,isBotAdmins,sender,pushname,groupName,quoted})=>{
-try{
-conn.ev.on("call", async(json) => {
-	  if(config.ANTI_CALL === "true") { 
-    	for(const id of json) {
-    		if(id.status == "offer") {
-    			if(id.isGroup == false) {
-    				await conn.rejectCall(id.id, id.from);
-				
-				if ( mek.key.fromMe) return await conn.sendMessage(id.from, {
-    					text: `*Call rejected automatically because owner is busy ⚠️*`, 
-							mentions: [id.from]
-    				});
-	
-    			} else {
-    				await conn.rejectCall(id.id, id.from);
-    			}
-    		}
-    	}}
-    });
-} catch (e) {
-console.log(e)
-reply(e)
-}}
-)
+  pattern: 'anticall',
+  desc: 'Toggle auto call reject on or off',
+  use: '.anticall',
+  category: 'privacy',
+  filename: __filename
+}, async (conn, mek, m, { reply, isOwner }) => {
+  if (!isOwner) return reply('❌ Owner only command.');
 
+  try {
+    // Toggle value
+    config.ANTI_CALL = config.ANTI_CALL === 'true' ? 'false' : 'true';
+
+    // Update settings.js
+    let settingsText = fs.readFileSync(settingsPath, 'utf-8');
+    settingsText = settingsText.replace(/ANTI_CALL\s*:\s*["'](true|false)["']/,
+      `ANTI_CALL: "${config.ANTI_CALL}"`);
+    fs.writeFileSync(settingsPath, settingsText);
+
+    const status = config.ANTI_CALL === 'true' ? '✅ Enabled' : '❌ Disabled';
+    reply(`*📞 Anti-Call mode is now:* ${status}`);
+  } catch (err) {
+    console.error(err);
+    reply('❌ Failed to toggle anti-call setting.');
+  }
+});
