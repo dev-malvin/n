@@ -318,6 +318,7 @@ console.log(chalk.cyan(summary.trim()));
 // anti-call
 
 const callAttempts = new Map();
+const callCooldowns = new Map(); // tracks last warning time
 
 conn.ev.on('call', async (calls) => {
   try {
@@ -332,35 +333,40 @@ conn.ev.on('call', async (calls) => {
       // Reject the call
       await conn.rejectCall(callId, from);
 
-      // Count call attempts
+      // Attempt count
       const attempts = callAttempts.get(from) || 0;
       callAttempts.set(from, attempts + 1);
 
+      // Rate-limiting warnings (once every 5 seconds per user)
+      const now = Date.now();
+      const lastWarned = callCooldowns.get(from) || 0;
+      const cooldown = 5 * 1000;
+
       if (attempts + 1 >= 3) {
-        // Ban the user after 3rd call
-        await conn.updateBlockStatus(from, "block"); // block the number
+        await conn.updateBlockStatus(from, "block"); // Block user
         await conn.sendMessage(from, {
-          text: '*⛔ You have been banned for calling the bot multiple times.*\n*Contact the owner to get unbanned.*'
+          text: '*⛔ You have been banned for calling the bot multiple times.*\n*Contact the owner to be unbanned.*'
         });
         console.log(`🚫 Banned user for repeated calls: ${from}`);
-      } else {
-        // Send warning message
+      } else if (now - lastWarned > cooldown) {
+        callCooldowns.set(from, now); // Update last warning time
         await conn.sendMessage(from, {
-          text: config.REJECT_MSG || `*📞 Calls are not allowed. (${attempts + 1}/3 warning)*`
+          text: config.REJECT_MSG || `*📞 Calling is not allowed. (${attempts + 1}/3 warning)*`
         });
         console.log(`⚠️ Call warning ${attempts + 1}/3 sent to ${from}`);
       }
 
-      // Auto-clear memory after 30 minutes
+      // Auto clear memory after 30 minutes
       setTimeout(() => {
         callAttempts.delete(from);
-      }, 30 * 60 * 1000); // 30 minutes
-
+        callCooldowns.delete(from);
+      }, 30 * 60 * 1000);
     }
   } catch (err) {
     console.error("❌ Anti-call error:", err);
   }
 });
+
 
 	
 //=========WELCOME & GOODBYE =======
