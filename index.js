@@ -316,10 +316,8 @@ console.log(chalk.cyan(summary.trim()));
   });
 
 // anti-call
-
-
 const callAttempts = new Map();
-const callCooldowns = new Map();
+const bannedUsers = new Map();
 
 conn.ev.on('call', async (calls) => {
   try {
@@ -331,45 +329,59 @@ conn.ev.on('call', async (calls) => {
       const from = call.from;
       const callId = call.id;
 
-      // Reject call immediately
+      // Prevent multiple responses in same second
+      if (callAttempts.has(`${from}_cooldown`)) continue;
+      callAttempts.set(`${from}_cooldown`, true);
+      setTimeout(() => callAttempts.delete(`${from}_cooldown`), 5000); // 5s cooldown
+
+      // Reject the call
       await conn.rejectCall(callId, from);
 
+      // Already banned
+      if (bannedUsers.has(from)) {
+        console.log(`🚫 Call from banned user ignored: ${from}`);
+        continue;
+      }
+
       const attempts = callAttempts.get(from) || 0;
-      callAttempts.set(from, attempts + 1);
+      const newAttempts = attempts + 1;
+      callAttempts.set(from, newAttempts);
 
-      // Rate limit: Only send a message every 10s max
-      const now = Date.now();
-      const last = callCooldowns.get(from) || 0;
-
-      if (now - last < 10000) continue; // skip message spam
-
-      callCooldowns.set(from, now); // update last warn
-
-      if (attempts + 1 >= 3) {
-        // Ban after 3rd attempt
+      if (newAttempts >= 3) {
+        // Ban
         await conn.updateBlockStatus(from, "block");
         await conn.sendMessage(from, {
           text: '*⛔ You have been banned for calling the bot multiple times.*\n*Contact the owner to get unbanned.*'
         });
-        console.log(`🚫 User banned for repeated calls: ${from}`);
+
+        console.log(`🚫 Banned user for repeated calls: ${from}`);
+
+        // Store ban timestamp and schedule auto-unban in 24h
+        bannedUsers.set(from, Date.now());
+        setTimeout(async () => {
+          await conn.updateBlockStatus(from, "unblock");
+          bannedUsers.delete(from);
+          callAttempts.delete(from);
+          console.log(`✅ Auto-unbanned: ${from}`);
+        }, 24 * 60 * 60 * 1000); // 24 hours
       } else {
-        // Single warning message
+        // Send warning
         await conn.sendMessage(from, {
-          text: config.REJECT_MSG || `*📵 Calls are not allowed on this number unless you have permission. (${attempts + 1}/3)*`
+          text: config.REJECT_MSG || `*📵 Calls are not allowed. (${newAttempts}/3 warnings)*`
         });
-        console.log(`⚠️ Warning ${attempts + 1}/3 sent to ${from}`);
+        console.log(`⚠️ Call warning ${newAttempts}/3 sent to ${from}`);
       }
 
-      // Auto-clear after 30 minutes
+      // Auto-clear normal call attempts after 30 minutes
       setTimeout(() => {
-        callAttempts.delete(from);
-        callCooldowns.delete(from);
-      }, 30 * 60 * 1000);
+        if (!bannedUsers.has(from)) callAttempts.delete(from);
+      }, 30 * 60 * 1000); // 30 min
     }
   } catch (err) {
     console.error("❌ Anti-call error:", err);
   }
 });
+
 
 	
 //=========WELCOME & GOODBYE =======
