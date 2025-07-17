@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { getConfig } = require('./lib/configdb');
+const settings = require('./settingss');
 
 if (fs.existsSync(path.resolve('config.env'))) {
   require('dotenv').config({ path: path.resolve('config.env') });
@@ -13,8 +14,8 @@ function convertToBool(text, trueValue = 'true') {
 
 module.exports = {
   // ===== BOT CORE SETTINGS =====
-  SESSION_ID: process.env.SESSION_ID || "malvin~5vEi3RAa#vgffKQ-cDyVYSdr6DhP9QIElJ3Y4A9aRMoHAcAkvdbM", // Your bot's session ID (keep secure)
-  PREFIX: getConfig("PREFIX") || ",", // Command prefix (e.g., ., /, !, *)
+  SESSION_ID: settings.SESSION_ID || process.env.SESSION_ID || "", // Your bot's session ID (keep secure)
+  PREFIX: getConfig("PREFIX") || "." || settings.PREFIX , // Command prefix (e.g., ., /, !, *)
   CHATBOT: getConfig("CHATBOT") || "on", // Chatbot mode: on/off
   BOT_NAME: process.env.BOT_NAME || getConfig("BOT_NAME") || "ᴍᴀʟᴠɪɴ-xᴅ", // Bot display name
   MODE: getConfig("MODE") || process.env.MODE || "private", // Bot mode: public/private/group/inbox
@@ -22,7 +23,7 @@ module.exports = {
   BAILEYS: process.env.BAILEYS || "@whiskeysockets/baileys", // Baileys version
 
   // ===== OWNER & DEVELOPER SETTINGS =====
-  OWNER_NUMBER: process.env.OWNER_NUMBER || "263714757857", // Owner WhatsApp number
+  OWNER_NUMBER: settings.OWNER_NUMBER || process.env.OWNER_NUMBER || "263714757857", // Owner WhatsApp number
   OWNER_NAME: process.env.OWNER_NAME || getConfig("OWNER_NAME") || "ᴍᴀʟᴠɪɴ ᴋɪɴɢ", // Owner name
   DEV: process.env.DEV || "263714757857", // Developer contact number
   DEVELOPER_NUMBER: '263714757857@s.whatsapp.net', // Developer WhatsApp ID
