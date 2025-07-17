@@ -2,8 +2,8 @@ const config = require('../settings');
 const { malvin, commands } = require('../malvin');
 
 malvin({
-    pattern: "ping",
-    alias: ["speed", "pong", "ping2", "ping3"],
+    pattern: "ping2",
+    alias: ["pong", "ping2", "ping3"],
     use: '.ping',
     desc: "Check bot's response time.",
     category: "main",
