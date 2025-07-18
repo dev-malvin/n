@@ -5,7 +5,7 @@ const os = require("os");
 const { runtime } = require('../lib/functions');
 let botStartTime = Date.now();
 
-const ALIVE_IMG = config.ALIVE_IMAGE || "https://files.catbox.moe/f0845t.jpg" ;
+const ALIVE_IMG = config.ALIVE_IMAGE || "https://files.catbox.moe/10hhtj.jpg" ;
 
 malvin({
   pattern: "alive",
