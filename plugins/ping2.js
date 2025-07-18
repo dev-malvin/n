@@ -47,7 +47,7 @@ malvin({
 
         // Final output
         const pingMsg = `
-${loadingBar}
+
 *${statusText}*
 
 ⚡ \`Response Time:\` ${responseTime.toFixed(2)}s
