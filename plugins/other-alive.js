@@ -37,7 +37,7 @@ async (conn, mek, m, {
     `.trim();
 
     await conn.sendMessage(from, {
-      image: { url: 'https://files.catbox.moe/f0845t.jpg' },
+      image: { url: 'https://files.catbox.moe/10hhtj.jpg' },
       caption,
       contextInfo: {
         mentionedJid: [m.sender],
