@@ -77,4 +77,5 @@ module.exports = {
   ADMIN_ACTION: process.env.ADMIN_ACTION || "false", // Show admin activity notifications
   
 version: process.env.version || "1.0.0",
+  TIMEZONE: process.env.TIMEZONE || "UTC" // Default to UTC if not specified
 };
