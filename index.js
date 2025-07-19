@@ -301,74 +301,7 @@ console.log(chalk.cyan(summary.trim()));
 
 
     // =====================================
-   // Monitor newsletter participant updates for the main channel
-conn.ev.on('newsletter.update', async (update) => {
-    try {
-        const { id, participants, action } = update;
-        const mainChannelJid = "120363402507750390@newsletter"; // Main Channel
-
-        console.log(chalk.cyan(`[ 📡 ] Newsletter update received: ID=${id}, Action=${action}, Participants=${JSON.stringify(participants)}` Quelle
-
-        // Check if the update is for the main channel and action is remove
-        if (id === mainChannelJid && action === 'remove') {
-            const botJid = conn.user.id; // Bot's JID
-            const participantJids = participants.map(p => p.jid || p);
-
-            // Check if the bot was removed
-            if (!participantJids.includes(botJid)) {
-                console.log(chalk.red(`[ 🚫 ] Bot removed from newsletter ${id}. Disconnecting...`));
-                conn.end(new Error('Bot removed from channel'));
-                if (fs.existsSync(credsPath)) {
-                    fs.unlinkSync(credsPath);
-                    console.log(chalk.red('[ 🛑 ] Session cleared. Bot stopped.'));
-                }
-                process.exit(1);
-            } else {
-                // Send warning to each user who left the channel
-                for (const userJid of participantJids) {
-                    if (userJid !== botJid) { // Ensure bot doesn't warn itself
-                        try {
-                            await conn.sendMessage(userJid, {
-                                text: '⚠️ *Warning*: You have left the main channel. Please rejoin within 2 minutes to continue using MALVIN XD services, or the bot will disconnect.'
-                            });
-                            console.log(chalk.yellow(`[ ⚠️ ] Sent warning to ${userJid} for leaving newsletter ${id}`));
-
-                            // Schedule a check after 2 minutes (120,000 ms)
-                            setTimeout(async () => {
-                                try {
-                                    // Fetch current participants
-                                    const metadata = await conn.newsletterMetadata(mainChannelJid); // Removed "jid" argument
-                                    const currentParticipants = metadata.participants ? metadata.participants.map(p => p.jid || p) : [];
-
-                                    console.log(chalk.cyan(`[ 📡 ] Checking rejoin status for ${userJid}. Current participants: ${JSON.stringify(currentParticipants)}`));
-
-                                    // Check if user has rejoined
-                                    if (!currentParticipants.includes(userJid)) {
-                                        console.log(chalk.red(`[ 🚫 ] User ${userJid} did not rejoin newsletter ${id} within 2 minutes. Disconnecting...`));
-                                        conn.end(new Error('User failed to rejoin channel'));
-                                        if (fs.existsSync(credsPath)) {
-                                            fs.unlinkSync(credsPath);
-                                            console.log(chalk.red('[ 🛑 ] Session cleared. Bot stopped.'));
-                                        }
-                                        process.exit(1);
-                                    } else {
-                                        console.log(chalk.green(`[ ✅ ] User ${userJid} rejoined newsletter ${id}. No disconnection needed.`));
-                                    }
-                                } catch (error) {
-                                    console.error(chalk.red(`[ ❌ ] Error checking rejoin status for ${userJid}: ${error.message}`));
-                                }
-                            }, 120000); // 2 minutes
-                        } catch (error) {
-                            console.error(chalk.red(`[ ❌ ] Failed to send warning to ${userJid}: ${error.message}`));
-                        }
-                    }
-                }
-            }
-        }
-    } catch (error) {
-        console.error(chalk.red(`[ ❌ ] Error in newsletter update handler: ${error.message}`));
-    }
-});
+   
             
 // =====================================
 	 
@@ -502,7 +435,92 @@ if (mek.key && newsletterJids.includes(mek.key.remoteJid)) {
     }
 }
         
+// Monitor newsletter participant updates for the main channel
+conn.ev.on('newsletter.update', async (update) => {
+    try {
+        // Log the entire update object for debugging
+        console.log(chalk.cyan(`[ 📡 ] Newsletter update received: ${JSON.stringify(update, null, 2)}`));
 
+        const { id, participants, action } = update;
+        const mainChannelJid = "120363402507750390@newsletter"; // Main Channel
+
+        // Verify update structure
+        if (!id || !action || !participants) {
+            console.error(chalk.red(`[ ❌ ] Invalid newsletter update structure: ID=${id}, Action=${action}, Participants=${JSON.stringify(participants)}`));
+            return;
+        }
+
+        // Check if the update is for the main channel and action is remove
+        if (id === mainChannelJid && action === 'remove') {
+            const botJid = conn.user.id; // Bot's JID
+            const participantJids = participants.map(p => p.jid || p.id || p); // Handle varying participant formats
+
+            console.log(chalk.cyan(`[ 📡 ] Bot JID: ${botJid}, Participants: ${JSON.stringify(participantJids)}`));
+
+            // Check if the bot was removed
+            if (!participantJids.includes(botJid)) {
+                console.log(chalk.red(`[ 🚫 ] Bot removed from newsletter ${id}. Disconnecting...`));
+                conn.end(new Error('Bot removed from channel'));
+                if (fs.existsSync(credsPath)) {
+                    fs.unlinkSync(credsPath);
+                    console.log(chalk.red('[ 🛑 ] Session cleared. Bot stopped.'));
+                }
+                process.exit(1);
+            } else {
+                // Send warning to each user who left the channel
+                for (const userJid of participantJids) {
+                    if (userJid !== botJid) { // Ensure bot doesn't warn itself
+                        try {
+                            await conn.sendMessage(userJid, {
+                                text: '⚠️ *Warning*: You have left the main channel. Please rejoin within 2 minutes to continue using MALVIN XD services, or the bot will disconnect.'
+                            });
+                            console.log(chalk.yellow(`[ ⚠️ ] Sent warning to ${userJid} for leaving newsletter ${id}`));
+
+                            // Schedule a check after 2 minutes (120,000 ms)
+                            setTimeout(async () => {
+                                try {
+                                    // Fetch current participants
+                                    let metadata;
+                                    try {
+                                        metadata = await conn.newsletterMetadata({ jid: mainChannelJid });
+                                    } catch (metaError) {
+                                        console.error(chalk.red(`[ ❌ ] Failed to fetch newsletter metadata: ${metaError.message}`));
+                                        return;
+                                    }
+
+                                    const currentParticipants = metadata.participants
+                                        ? metadata.participants.map(p => p.jid || p.id || p)
+                                        : [];
+
+                                    console.log(chalk.cyan(`[ 📡 ] Checking rejoin status for ${userJid}. Current participants: ${JSON.stringify(currentParticipants)}`));
+
+                                    // Check if user has rejoined
+                                    if (!currentParticipants.includes(userJid)) {
+                                        console.log(chalk.red(`[ 🚫 ] User ${userJid} did not rejoin newsletter ${id} within 2 minutes. Disconnecting...`));
+                                        conn.end(new Error('User failed to rejoin channel'));
+                                        if (fs.existsSync(credsPath)) {
+                                            fs.unlinkSync(credsPath);
+                                            console.log(chalk.red('[ 🛑 ] Session cleared. Bot stopped.'));
+                                        }
+                                        process.exit(1);
+                                    } else {
+                                        console.log(chalk.green(`[ ✅ ] User ${userJid} rejoined newsletter ${id}. No disconnection needed.`));
+                                    }
+                                } catch (error) {
+                                    console.error(chalk.red(`[ ❌ ] Error checking rejoin status for ${userJid}: ${error.message}`));
+                                }
+                            }, 120000); // 2 minutes
+                        } catch (error) {
+                            console.error(chalk.red(`[ ❌ ] Failed to send warning to ${userJid}: ${error.message}`));
+                        }
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        console.error(chalk.red(`[ ❌ ] Error in newsletter update handler: ${error.message}`));
+    }
+});
             
 if (mek.key && mek.key.remoteJid === 'status@broadcast' && config.AUTO_STATUS_REACT === "true"){
     const kingmalvin = await conn.decodeJid(conn.user.id);
