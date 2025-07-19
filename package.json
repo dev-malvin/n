@@ -18,6 +18,7 @@
     "@dark-yasiya/scrap":"1.0.1",    
     "acrcloud": "^1.4.0",
     "adm-zip": "^0.5.16",
+    "lolcatjs": "^2.4.1",
     "api-dylux": "latest",
     "btch-downloader": "^2.2.9",
     "better-sqlite3": "*",
