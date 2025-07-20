@@ -577,7 +577,7 @@ console.log(chalk.cyan(`[🕒] Using timezone: ${timezones}`));
                 lolcatjs.fromString(`│ 🕒 Sent Time     : ${dayz}, ${timez}`);
                 lolcatjs.fromString(`│ 💬 Command       : ${prefix}${cmdName}`);
                 lolcatjs.fromString(`│ 🙍 Sender Name   : ${pushname || 'N/A'}`);
-                lolcatjs.fromString(`│ 🆔 Chat ID       : ${from Elem:from.split('@')[0]}`);
+                lolcatjs.fromString(`│ 🆔 Chat ID       : ${from.split('@')[0]}`);
                 lolcatjs.fromString(`╰──────────────────────────────────────╯\n`);
             }
         }
