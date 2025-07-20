@@ -1,5 +1,3 @@
-
-
 const config = require('../settings');
 const { malvin, commands } = require('../malvin');
 const { runtime } = require('../lib/functions');
@@ -10,7 +8,7 @@ const fs = require('fs');
 const { getPrefix } = require('../lib/prefix');
 
 malvin({
-    pattern: "me",
+    pattern: "menu",
     alias: "m",
     desc: "Show interactive menu system",
     category: "main",
@@ -18,8 +16,8 @@ malvin({
     filename: __filename
 }, async (conn, mek, m, { from, reply }) => {
     try {
-        // Use timezone from settings with fallback to 'Africa/Harare'
-        const timezone = config.TIMEZONE || "Africa/Harare";
+        // Use timezone from settings
+        const timezone = config.TIMEZONE || "Africa/Nairobi";
         const currentTime = moment().tz(timezone).format("HH:mm:ss");
         const currentDate = moment().tz(timezone).format("dddd, MMMM Do YYYY");
         const prefix = getPrefix();
@@ -188,7 +186,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['1'] || 'https://files.catbox.moe/download_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['1'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/download_menu.jpg'
             },
             '2': {
                 title: "👥 *Group Menu* 👥",
@@ -243,7 +241,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['2'] || 'https://files.catbox.moe/group_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['2'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/group_menu.jpg'
             },
             '3': {
                 title: "😄 *Fun Menu* 😄",
@@ -334,7 +332,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['3'] || 'https://files.catbox.moe/fun_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['3'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/fun_menu.jpg'
             },
             '4': {
                 title: "👑 *Owner Menu* 👑",
@@ -397,7 +395,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['4'] || 'https://files.catbox.moe/owner_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['4'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/owner_menu.jpg'
             },
             '5': {
                 title: "🤖 *AI Menu* 🤖",
@@ -419,7 +417,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['5'] || 'https://files.catbox.moe/ai_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['5'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/ai_menu.jpg'
             },
             '6': {
                 title: "🎎 *Anime Menu* 🎎",
@@ -450,7 +448,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['6'] || 'https://files.catbox.moe/anime_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['6'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/anime_menu.jpg'
             },
             '7': {
                 title: "🔄 *Convert Menu* 🔄",
@@ -489,7 +487,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['7'] || 'https://files.catbox.moe/convert_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['7'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/convert_menu.jpg'
             },
             '8': {
                 title: "📌 *Other Menu* 📌",
@@ -546,7 +544,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['8'] || 'https://files.catbox.moe/other_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['8'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/other_menu.jpg'
             },
             '9': {
                 title: "💞 *Reaction Menu* 💞",
@@ -589,7 +587,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['9'] || 'https://files.catbox.moe/reaction_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['9'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/reaction_menu.jpg'
             },
             '10': {
                 title: "🏠 *Main Menu* 🏠",
@@ -631,7 +629,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['10'] || 'https://files.catbox.moe/main_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['10'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/main_menu.jpg'
             },
             '11': {
                 title: "🎨 *Logo Maker* 🎨",
@@ -685,7 +683,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['11'] || 'https://files.catbox.moe/logo_maker_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['11'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/logo_maker_menu.jpg'
             },
             '12': {
                 title: "⚙️ *Settings Menu* ⚙️",
@@ -732,7 +730,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['12'] || 'https://files.catbox.moe/settings_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['12'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/settings_menu.jpg'
             },
             '13': {
                 title: "🎵 *Audio Menu* 🎵",
@@ -761,7 +759,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['13'] || 'https://files.catbox.moe/audio_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['13'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/audio_menu.jpg'
             },
             '14': {
                 title: "🔒 *Privacy Menu* 🔒",
@@ -784,7 +782,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['14'] || 'https://files.catbox.moe/privacy_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['14'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/privacy_menu.jpg'
             }
         };
 
@@ -809,7 +807,7 @@ malvin({
                                 await conn.sendMessage(
                                     senderID,
                                     {
-                                        image: { url: selectedMenu.imageUrl || config.MENU_IMAGE_URL || 'https://files.catbox.moe/qumhu4.jpg' },
+                                        image: { url: selectedMenu.imageUrl },
                                         caption: selectedMenu.content,
                                         contextInfo: contextInfo
                                     },
