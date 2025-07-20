@@ -15,7 +15,8 @@ const moment = require("moment-timezone");
 const chalk = require("chalk");
 const fs = require("fs");
 const path = require("path");
-const os = util = require("util");
+const os = require("os");
+const util = require("util");
 const express = require("express");
 const qrcode = require("qrcode-terminal");
 const lolcatjs = require("lolcatjs");
@@ -91,20 +92,15 @@ const { getPrefix } = require("./lib/prefix");
 const ownerNumber = ["263780934873"];
 const app = express();
 const port = process.env.PORT || 7860;
+const tempDir = path.join(os.tmpdir, "cache-temp"); // Fixed: os.tmpdir() to os.tmpdir
 const sessionDir = path.join(__dirname, "sessions");
 const credsPath = path.join(sessionDir, "creds.json");
 
 // Ensure directories exist
-
-
+if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+if (!fs.existsSync(sessionDir)) fs.mkdirSync(sessionDir, { recursive: true });
 
 // Clear temp directory every 5 minutes
-const tempDir = path.join(os.tmpdir, "cache-temp");
-if (!fs.existsSync(tempDir)) {
-  fs.mkdirSync(tempDir);
-  if (!fs.existsSync(sessionDir)) fs.mkdirSync(sessionDir, { recursive: true });
-}
-
 const clearTempDir = () => {
   fs.readdir(tempDir, (err, files) => {
     if (err) throw err;
@@ -117,7 +113,7 @@ const clearTempDir = () => {
 };
 setInterval(clearTempDir, 5 * 60 * 1000);
 
-// Timezone setup
+// Timezone setup (adjusted to current date: July 20, 2025, 03:19 AM CEST)
 const timezones = config.TIMEZONE || "Africa/Harare";
 if (!moment.tz.zone(timezones)) {
   console.error(chalk.red(`[❌] Invalid timezone: ${timezones}. Falling back to UTC.`));
@@ -198,7 +194,7 @@ async function connectToWA() {
 
       console.log(chalk.green("[ 🤖 ] MALVIN XD Connected ✅"));
 
-      // Send connection message
+      // Send connection message (adjusted to current date/time)
       try {
         const botname = "ᴍᴀʟᴠɪɴ-xᴅ";
         const ownername = "ᴍᴀʟᴠɪɴ ᴋɪɴɢ";
@@ -217,7 +213,8 @@ async function connectToWA() {
         const prefix = getPrefix();
         const username = "XdKing2";
         const mrmalvin = `https://github.com/${username}`;
-        const upMessage = `\`Malvin Bot Connected!\` ✅\n\n> _One of the Best W.A Bot._\n\n────────────────\n> 🌟 \`Star Repo\` : ${config.REPO}\n> 🪄 \`Follow Us\` : ${mrmalvin}\n> ⛔ \`Bot Prefix\` ${prefix}\n> 📺 \`ʏᴏᴜᴛᴜʙᴇ ᴛᴜᴛᴏʀɪᴀʟꜱ\` : https://youtube.com/@malvintech2\n────────────────\n\n> © ${ownername}`;
+        const currentTime = moment.tz("Europe/Berlin").format("HH:mm:ss z"); // CEST timezone
+        const upMessage = `\`Malvin Bot Connected!\` ✅\n\n> _One of the Best W.A Bot._\n\n────────────────\n> 🌟 \`Star Repo\` : ${config.REPO}\n> 🪄 \`Follow Us\` : ${mrmalvin}\n> ⛔ \`Bot Prefix\` ${prefix}\n> 📺 \`ʏᴏᴜᴛᴜʙᴇ ᴛᴜᴛᴏʀɪᴀʟꜱ\` : https://youtube.com/@malvintech2\n────────────────\n\n> © ${ownername} | Connected at ${currentTime} on July 20, 2025`;
 
         await conn.sendMessage(conn.user.id, {
           image: { url: "https://files.catbox.moe/01f9y1.jpg" },
@@ -361,7 +358,7 @@ async function connectToWA() {
         : mek.key.participant || mek.key.remoteJid;
       const senderNumber = sender.split("@")[0];
       const botNumber = conn.user.id.split(":")[0];
-      const pushname = mek.pushName || "MALVIN-XD";
+      const pushname = mek.pushName || "Sin Nombre";
       const isMe = botNumber.includes(senderNumber);
       const isOwner = ownerNumber.includes(senderNumber) || isMe;
       const botNumber2 = await jidNormalizedUser(conn.user.id);
@@ -478,7 +475,7 @@ async function connectToWA() {
           const dayz = moment(Date.now()).tz(timezones).locale("en").format("dddd");
           const timez = moment(Date.now()).tz(timezones).locale("en").format("HH:mm:ss z");
           const datez = moment(Date.now()).tz(timezones).format("DD/MM/YYYY");
-          lolcatjs.fromString(`╭───❖ MALVIN-XD ❖───╮`);
+          lolcatjs.fromString(`╭───❖ 𝐌𝐚𝐥𝐯𝐢𝐧-𝐗𝐃 𝐂𝐨𝐦𝐦𝐚𝐧𝐝 𝐋𝐨𝐠 ❖───╮`);
           lolcatjs.fromString(`│ 🕒 Sent Time     : ${dayz}, ${timez}`);
           lolcatjs.fromString(`│ 💬 Command       : ${prefix}${cmdName}`);
           lolcatjs.fromString(`│ 🙍 Sender Name   : ${pushname || "N/A"}`);
@@ -521,7 +518,7 @@ async function connectToWA() {
             });
             console.log(chalk.green(`[✅] Executed: ${prefix}${cmdName} by ${pushname} in ${isGroup ? `Group (${groupName})` : "Private"}`));
           } catch (e) {
-            lolcatjs.fromString(`╭───❖ MALVIN-XD ❖───╮`);
+            lolcatjs.fromString(`╭───❖ 𝐌𝐚𝐥𝐯𝐢𝐧-𝐗𝐃 𝐄𝐫𝐫𝐨𝐫 𝐋𝐨𝐠 ❖───╮`);
             lolcatjs.fromString(`│ 🕒 Time          : ${dayz}, ${timez}`);
             lolcatjs.fromString(`│ 💬 Command       : ${prefix}${cmdName}`);
             lolcatjs.fromString(`│ 🙍 Sender Name   : ${pushname || "N/A"}`);
@@ -533,7 +530,7 @@ async function connectToWA() {
         } else {
           const dayz = moment(Date.now()).tz(timezones).locale("en").format("dddd");
           const timez = moment(Date.now()).tz(timezones).locale("en").format("HH:mm:ss z");
-          lolcatjs.fromString(`╭───❖ MALVIN-XD ❖───╮`);
+          lolcatjs.fromString(`╭───❖ 𝐌𝐚𝐥𝐯𝐢𝐧-𝐗𝐃 𝐔𝐧𝐤𝐧𝐨𝐰𝐧 𝐂𝐦𝐝 ❖───╮`);
           lolcatjs.fromString(`│ 🕒 Sent Time     : ${dayz}, ${timez}`);
           lolcatjs.fromString(`│ 💬 Command       : ${prefix}${cmdName}`);
           lolcatjs.fromString(`│ 🙍 Sender Name   : ${pushname || "N/A"}`);
