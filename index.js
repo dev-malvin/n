@@ -92,7 +92,7 @@ const { getPrefix } = require("./lib/prefix");
 const ownerNumber = ["263780934873"];
 const app = express();
 const port = process.env.PORT || 7860;
-const tempDir = path.join(os.tmpdir, "cache-temp"); // Fixed: os.tmpdir() to os.tmpdir
+const tempDir = path.join(os.tmpdir, "cache-temp"); // Fixed: Ensure os.tmpdir is used
 const sessionDir = path.join(__dirname, "sessions");
 const credsPath = path.join(sessionDir, "creds.json");
 
@@ -113,7 +113,7 @@ const clearTempDir = () => {
 };
 setInterval(clearTempDir, 5 * 60 * 1000);
 
-// Timezone setup (adjusted to current date: July 20, 2025, 03:19 AM CEST)
+// Timezone setup (adjusted to current date: July 20, 2025, 03:28 AM CEST)
 const timezones = config.TIMEZONE || "Africa/Harare";
 if (!moment.tz.zone(timezones)) {
   console.error(chalk.red(`[❌] Invalid timezone: ${timezones}. Falling back to UTC.`));
