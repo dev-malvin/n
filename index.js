@@ -512,14 +512,10 @@ conn.ev.on('messages.upsert', async (mek) => {
             return;
         }
 
-        // Command execution with box-style logging
+        // Command execution with box-style logging// Command execution with box-style logging
         const events = require('./malvin');
         const cmdName = isCmd ? body.slice(prefix.length).trim().split(" ")[0].toLowerCase() : false;
-        if (isCmd) {
-            const cmd = events.commands.find((cmd) => cmd.pattern === cmdName) || 
-                        events.commands.find((cmd) => cmd.alias && cmd.alias.includes(cmdName));
-            if (cmd) {
-		    let timezones = config.TIMEZONE || 'Africa/Harare';
+        let timezones = config.TIMEZONE || 'Africa/Harare';
 
 // Validate timezone
 if (!moment.tz.zone(timezones)) {
@@ -528,7 +524,10 @@ if (!moment.tz.zone(timezones)) {
 }
 
 console.log(chalk.cyan(`[🕒] Using timezone: ${timezones}`));
-		    
+        if (isCmd) {
+            const cmd = events.commands.find((cmd) => cmd.pattern === cmdName) || 
+                        events.commands.find((cmd) => cmd.alias && cmd.alias.includes(cmdName));
+            if (cmd) {
                 const dayz = moment(Date.now()).tz(timezones).locale('en').format('dddd');
                 const timez = moment(Date.now()).tz(timezones).locale('en').format('HH:mm:ss z');
                 const datez = moment(Date.now()).tz(timezones).format("DD/MM/YYYY");
@@ -541,6 +540,33 @@ console.log(chalk.cyan(`[🕒] Using timezone: ${timezones}`));
                 lolcatjs.fromString(`│ 📍 Chat Type     : ${isGroup ? `Group (${groupName})` : 'Private'}`);
                 lolcatjs.fromString(`╰──────────────────────────────────────╯\n`);
 
+
+                // Apply command reaction if specified
+                if (cmd.react) {
+                    await conn.sendMessage(from, { react: { text: cmd.react, key: mek.key } });
+                    console.log(chalk.cyan(`[😺] Reaction: ${cmd.react} for ${prefix}${cmdName}`));
+                }
+
+                try {
+                    // Execute command
+                    await cmd.function(conn, mek, m, {
+                        from, quoted, body, isCmd, command, args, q, text, 
+                        isGroup, sender, senderNumber, botNumber2, botNumber, 
+                        pushname, isMe, isOwner, isCreator, groupMetadata, 
+                        groupName, participants, groupAdmins, isBotAdmins, 
+                        isAdmins, reply
+                    });
+                    // Log successful execution
+                    console.log(chalk.green(`[✅] Executed: ${prefix}${cmdName} by ${pushname} in ${isGroup ? `Group (${groupName})` : 'Private'}`));
+                } catch (e) {
+                    // Log error
+                    lolcatjs.fromString(`╭───❖ 𝐌𝐚𝐥𝐯𝐢𝐧-𝐗𝐃 𝐄𝐫𝐫𝐨𝐫 𝐋𝐨𝐠 ❖───╮`);
+                    lolcatjs.fromString(`│ 🕒 Time          : ${dayz}, ${timez}`);
+                    lolcatjs.fromString(`│ 💬 Command       : ${prefix}${cmdName}`);
+                    lolcatjs.fromString(`│ 🙍 Sender Name   : ${pushname || 'N/A'}`);
+                    lolcatjs.fromString(`│ 🆔 Chat ID       : ${from.split('@')[0]}`);
+                    lolcatjs.fromString(`│ ❗ Error         : ${e.message}`);
+                    lolcatjs.fromString(`╰──────────────────────────────────────╯\n`);
                     reply(`Error executing command: ${e.message}`);
                 }
             } else {
@@ -551,7 +577,7 @@ console.log(chalk.cyan(`[🕒] Using timezone: ${timezones}`));
                 lolcatjs.fromString(`│ 🕒 Sent Time     : ${dayz}, ${timez}`);
                 lolcatjs.fromString(`│ 💬 Command       : ${prefix}${cmdName}`);
                 lolcatjs.fromString(`│ 🙍 Sender Name   : ${pushname || 'N/A'}`);
-                lolcatjs.fromString(`│ 🆔 Chat ID       : ${from.split('@')[0]}`);
+                lolcatjs.fromString(`│ 🆔 Chat ID       : ${from Elem:from.split('@')[0]}`);
                 lolcatjs.fromString(`╰──────────────────────────────────────╯\n`);
             }
         }
