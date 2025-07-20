@@ -81,16 +81,16 @@ module.exports = {
     '1': process.env.DOWNLOAD_MENU_IMAGE || "https://files.catbox.moe/122liy.jpg", // Download Menu
     '2': process.env.GROUP_MENU_IMAGE || "https://files.catbox.moe/bmze2e.jpg",   // Group Menu
     '3': process.env.FUN_MENU_IMAGE || "https://files.catbox.moe/s6ol5l.jpg",       // Fun Menu
-    '4': process.env.OWNER_MENU_IMAGE || "https://files.catbox.moe/owner_menu.jpg",   // Owner Menu
-    '5': process.env.AI_MENU_IMAGE || "https://files.catbox.moe/ai_menu.jpg",         // AI Menu
-    '6': process.env.ANIME_MENU_IMAGE || "https://files.catbox.moe/anime_menu.jpg",   // Anime Menu
-    '7': process.env.CONVERT_MENU_IMAGE || "https://files.catbox.moe/convert_menu.jpg", // Convert Menu
-    '8': process.env.OTHER_MENU_IMAGE || "https://files.catbox.moe/other_menu.jpg",   // Other Menu
-    '9': process.env.REACTION_MENU_IMAGE || "https://files.catbox.moe/reaction_menu.jpg", // Reaction Menu
-    '10': process.env.MAIN_MENU_IMAGE || "https://files.catbox.moe/main_menu.jpg",    // Main Menu
-    '11': process.env.LOGO_MAKER_MENU_IMAGE || "https://files.catbox.moe/logo_maker_menu.jpg", // Logo Maker Menu
-    '12': process.env.SETTINGS_MENU_IMAGE || "https://files.catbox.moe/settings_menu.jpg", // Settings Menu
-    '13': process.env.AUDIO_MENU_IMAGE || "https://files.catbox.moe/audio_menu.jpg",  // Audio Menu
-    '14': process.env.PRIVACY_MENU_IMAGE || "https://files.catbox.moe/privacy_menu.jpg" // Privacy Menu
+    '4': process.env.OWNER_MENU_IMAGE || "https://files.catbox.moe/jw8h57.jpg",   // Owner Menu
+    '5': process.env.AI_MENU_IMAGE || "https://files.catbox.moe/ceeo6k.jpg",         // AI Menu
+    '6': process.env.ANIME_MENU_IMAGE || "https://files.catbox.moe/jw8h57.jpg",   // Anime Menu
+    '7': process.env.CONVERT_MENU_IMAGE || "https://files.catbox.moe/bmze2e.jpg", // Convert Menu
+    '8': process.env.OTHER_MENU_IMAGE || "https://files.catbox.moe/jw8h57.jpg",   // Other Menu
+    '9': process.env.REACTION_MENU_IMAGE || "https://files.catbox.moe/s6ol5l.jpg", // Reaction Menu
+    '10': process.env.MAIN_MENU_IMAGE || "https://files.catbox.moe/ceeo6k.jpg",    // Main Menu
+    '11': process.env.LOGO_MAKER_MENU_IMAGE || "https://files.catbox.moe/jw8h57.jpg", // Logo Maker Menu
+    '12': process.env.SETTINGS_MENU_IMAGE || "https://files.catbox.moe/9qoecp.jpg", // Settings Menu
+    '13': process.env.AUDIO_MENU_IMAGE || "https://files.catbox.moe/jw8h57.jpg",  // Audio Menu
+    '14': process.env.PRIVACY_MENU_IMAGE || "https://files.catbox.moe/ceeo6k.jpg" // Privacy Menu
   }
 };
