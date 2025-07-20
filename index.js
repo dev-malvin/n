@@ -92,25 +92,26 @@ const { getPrefix } = require("./lib/prefix");
 const ownerNumber = ["263780934873"];
 const app = express();
 const port = process.env.PORT || 7860;
-const tempDir = path.join(os.tmpdir, "cache-temp"); // Fixed: Ensure os.tmpdir is used
-const sessionDir = path.join(__dirname, "sessions");
-const credsPath = path.join(sessionDir, "creds.json");
+
 
 // Ensure directories exist
-if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
-if (!fs.existsSync(sessionDir)) fs.mkdirSync(sessionDir, { recursive: true });
+const tempDir = path.join(os.tmpdir(), 'cache-temp')
+if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir)
+}
 
-// Clear temp directory every 5 minutes
 const clearTempDir = () => {
-  fs.readdir(tempDir, (err, files) => {
-    if (err) throw err;
-    for (const file of files) {
-      fs.unlink(path.join(tempDir, file), (err) => {
-        if (err) throw err;
-      });
+        fs.readdir(tempDir, (err, files) => {
+            if (err) throw err;
+            for (const file of files) {
+                fs.unlink(path.join(tempDir, file), err => {
+                    if (err) throw err;
+                });
+            }
+        });
     }
-  });
-};
+    //=============================================
+    // Clear the temp directory every 5 minutes
 setInterval(clearTempDir, 5 * 60 * 1000);
 
 // Timezone setup (adjusted to current date: July 20, 2025, 03:28 AM CEST)
@@ -120,6 +121,17 @@ if (!moment.tz.zone(timezones)) {
   timezones = "UTC";
 }
 console.log(chalk.cyan(`[🕒] Using timezone: ${timezones}`));
+
+
+
+ const sessionDir = path.join(__dirname, 'sessions');
+const credsPath = path.join(sessionDir, 'creds.json');
+
+// Create session directory if it doesn't exist
+if (!fs.existsSync(sessionDir)) {
+    fs.mkdirSync(sessionDir, { recursive: true });
+}
+ 
 
 // Session loading
 async function loadSession() {
