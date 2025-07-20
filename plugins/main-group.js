@@ -10,7 +10,7 @@ const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, 
 // ==========================
 const sendCustomMessage = async (conn, from, message, mek, m) => {
     await conn.sendMessage(from, {
-        image: { url: `https://files.catbox.moe/01f9y1.jpg` },
+        image: { url: `https://https://files.catbox.moe/jw8h57.jpg` },
         caption: message,
         contextInfo: {
             mentionedJid: [m.sender],
@@ -18,13 +18,173 @@ const sendCustomMessage = async (conn, from, message, mek, m) => {
             isForwarded: true,
             forwardedNewsletterMessageInfo: {
                 newsletterJid: '120363402507750390@newsletter',
-                newsletterName: '『 ᴍᴀʟᴠɪɴ-xᴅ 』',
+                newsletterName: '🤖 ᴍᴀʟᴠɪɴ-xᴅ ',
                 serverMessageId: 143
             }
         }
     }, { quoted: mek });
 }
 
+
+
+// ==================== KICK COMMAND ====================
+malvin({
+  pattern: "kick",
+  alias: ["k", "remove", "nital"],
+  desc: "Remove a user from the group",
+  category: "group",
+  react: "✅",
+  filename: __filename
+}, async (conn, mek, m, {
+  from,
+  isCreator,
+  isBotAdmins,
+  isAdmins,
+  isGroup,
+  quoted,
+  reply,
+  botNumber
+}) => {
+  try {
+    if (!isGroup) return reply("⚠️ This command only works in *groups*.");
+    if (!isBotAdmins) return reply("❌ I must be *admin* to remove someone.");
+    if (!isAdmins && !isCreator) return reply("🔐 Only *group admins* or *owner* can use this command.");
+
+    // Consistent user extraction logic
+    if (!m.quoted && (!m.mentionedJid || m.mentionedJid.length === 0)) {
+      return reply("❓ You did not give me a user to remove!");
+    }
+
+    let users = m.mentionedJid[0]
+      ? m.mentionedJid[0]
+      : m.quoted
+      ? m.quoted.sender
+      : null;
+
+    if (!users) return reply("⚠️ Couldn't determine target user.");
+
+    // Protection checks
+    if (users === botNumber) return reply("🤖 I can't kick myself!");
+    const ownerJid = conn.user.id.split(":")[0] + '@s.whatsapp.net';
+    if (users === ownerJid) return reply("👑 That's the owner! I can't remove them.");
+
+    /*await conn.groupParticipantsUpdate(from, [users], "remove");
+    reply(`*✅ Successfully removed from group.*`, { mentions: [users] });*/
+      await conn.groupParticipantsUpdate(from, [users], "remove");
+await sendCustomMessage(conn, from, `*✅ Successfully removed from group.*`, mek, m);
+
+
+  } catch (err) {
+    console.error(err);
+    reply("❌ Failed to remove user. Something went wrong.");
+  }
+});
+
+// ==================== PROMOTE COMMAND ====================
+malvin({
+  pattern: "promote",
+  alias: ["p", "giveadmin", "makeadmin"],
+  desc: "Promote a user to admin",
+  category: "group",
+  react: "✅",
+  filename: __filename
+}, async (conn, mek, m, {
+  from,
+  isCreator,
+  isBotAdmins,
+  isAdmins,
+  isGroup,
+  quoted,
+  reply,
+  botNumber
+}) => {
+  try {
+    if (!isGroup) return reply("⚠️ This command only works in *groups*.");
+    if (!isBotAdmins) return reply("❌ I must be *admin* to promote someone.");
+    if (!isAdmins && !isCreator) return reply("🔐 Only *group admins* or *owner* can use this command.");
+
+    // Consistent user extraction logic
+    if (!m.quoted && (!m.mentionedJid || m.mentionedJid.length === 0)) {
+      return reply("❓ You did not give me a user to promote!");
+    }
+
+    let users = m.mentionedJid[0]
+      ? m.mentionedJid[0]
+      : m.quoted
+      ? m.quoted.sender
+      : null;
+
+    if (!users) return reply("⚠️ Couldn't determine target user.");
+
+    // Protection checks
+    if (users === botNumber) return reply("🤖 I can't promote myself!");
+    const ownerJid = conn.user.id.split(":")[0] + '@s.whatsapp.net';
+    if (users === ownerJid) return reply("👑 Owner is already super admin!");
+
+   /* await conn.groupParticipantsUpdate(from, [users], "promote");
+    reply(`*✅ Successfully Promoted to Admin.*`, { mentions: [users] });*/
+      await conn.groupParticipantsUpdate(from, [users], "promote");
+await sendCustomMessage(conn, from, `*✅ Successfully Promoted to Admin.*`, mek, m);
+
+
+  } catch (err) {
+    console.error(err);
+    reply("❌ Failed to promote. Something went wrong.");
+  }
+});
+
+// ==================== DEMOTE COMMAND ====================
+malvin({
+  pattern: "demote",
+  alias: ["d", "dismiss", "removeadmin"],
+  desc: "Demote a group admin",
+  category: "group",
+  react: "✅",
+  filename: __filename
+}, async (conn, mek, m, {
+  from,
+  isCreator,
+  isBotAdmins,
+  isAdmins,
+  isGroup,
+  quoted,
+  reply,
+  botNumber
+}) => {
+  try {
+    if (!isGroup) return reply("⚠️ This command only works in *groups*.");
+    if (!isBotAdmins) return reply("❌ I must be *admin* to demote someone.");
+    if (!isAdmins && !isCreator) return reply("🔐 Only *group admins* or *owner* can use this command.");
+
+    // Consistent user extraction logic
+    if (!m.quoted && (!m.mentionedJid || m.mentionedJid.length === 0)) {
+      return reply("❓ You did not give me a user to demote!");
+    }
+
+    let users = m.mentionedJid[0]
+      ? m.mentionedJid[0]
+      : m.quoted
+      ? m.quoted.sender
+      : null;
+
+    if (!users) return reply("⚠️ Couldn't determine target user.");
+
+    // Protection checks
+    if (users === botNumber) return reply("🤖 I can't demote myself!");
+    const ownerJid = conn.user.id.split(":")[0] + '@s.whatsapp.net';
+    if (users === ownerJid) return reply("👑 I can't demote the owner!");
+
+    /*await conn.groupParticipantsUpdate(from, [users], "demote");
+    reply(`*✅ Admin Successfully demoted to a normal member.*`, { mentions: [users] });*/
+      await conn.groupParticipantsUpdate(from, [users], "demote");
+await sendCustomMessage(conn, from, `*✅ Admin Successfully demoted to a normal member.*`, mek, m);
+
+
+  } catch (err) {
+    console.error(err);
+    reply("❌ Failed to demote. Something went wrong.");
+  }
+});
 
 // ==========================
 // Leave Group Command
@@ -132,7 +292,7 @@ async (conn, mek, m, { from, q, isGroup, isBotAdmins, senderNumber }) => {
     }
 });
 
-
+/*
 // ==========================
 // Promote Member Command
 // ==========================
@@ -202,7 +362,7 @@ async (conn, mek, m, { from, q, isGroup, senderNumber, botNumber, isAdmins, isBo
     }
 });
 
-
+*/
 // ==========================
 // Unmute Group Command
 // ==========================
@@ -321,7 +481,7 @@ malvin({
 async (conn, mek, m, { from, q, isGroup, isCreator, isDev, isOwner, isMe, args }) => {
     try {
         const msr = (await fetchJson('https://raw.githubusercontent.com/XdKing2/MALVIN-DATA/refs/heads/main/MSG/mreply.json')).replyMsg;
-        if (!isCreator && !isDev && !isOwner && !isMe) return await sendCustomMessage(conn, from, msr.own_cmd, mek, m);
+        if (!isCreator && !isDev && !isOwner && !isMe) return await sendCustomMessage(conn, from, msr.own_malvin, mek, m);
         if (!q) return await sendCustomMessage(conn, from, "*Please write the Group Link*️ 🖇️", mek, m);
         let result = args[0].split('https://chat.whatsapp.com/')[1];
         await conn.groupAcceptInvite(result);
@@ -434,7 +594,7 @@ async (conn, mek, m, { from, q, isGroup, participants }) => {
         if (!isGroup) return await sendCustomMessage(conn, from, "❌ This command can only be used in groups.", mek, m);
         if (!q) return await sendCustomMessage(conn, from, "❌ Please provide a message to send.", mek, m);
         const header = "🔔 `Attention Everyone:`";
-        const fullMsg = `${header}\n\n> ${q}\n\n© MALVIN XD BOT`;
+        const fullMsg = `${header}\n\n> ${q}\n\n© MALVIN XD`;
         await conn.sendMessage(from, { text: fullMsg, mentions: participants.map(a => a.id) }, { quoted: mek });
     } catch(e) {
         await sendCustomMessage(conn, from, `❌ *Error Occurred!!* \n\n${e}`, mek, m);
@@ -472,7 +632,7 @@ async (conn, mek, m, { from, prefix, l, args, q, isGroup, isAdmins, participants
         await sendCustomMessage(conn, from, `_Group will automatically open after ${q}_`, mek, m);
         setTimeout(async () => {
             const openMsg = "```🔓Good News! Group has been opened. Enjoy :)```" +
-                            "\n\n> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ ᴋɪɴɢ";
+                            "\n\n> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍʀ ғʀᴀɴᴋ";
             await conn.groupSettingUpdate(from, 'not_announcement');
             await sendCustomMessage(conn, from, openMsg, mek, m);
         }, timer);
@@ -514,7 +674,7 @@ async (conn, mek, m, { from, prefix, l, args, q, isGroup, isAdmins, participants
         await sendCustomMessage(conn, from, `_Group will be automatically closed after ${q}_`, mek, m);
         setTimeout(async () => {
             const closeMsg = "```🔐 Time's Up! Group auto closed.```" +
-                             "\n\n> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍʀ ᴍᴀʟᴠɪɴ ᴋɪɴɢ";
+                             "\n\n> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍʀ ғʀᴀɴᴋ";
             await conn.groupSettingUpdate(from, 'announcement');
             await sendCustomMessage(conn, from, closeMsg, mek, m);
         }, timer);
@@ -540,9 +700,9 @@ async(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, sen
 try{
 const msr = (await fetchJson('https://raw.githubusercontent.com/XdKing2/MALVIN-DATA/refs/heads/main/MSG/mreply.json')).replyMsg
 
-if (!isGroup) return reply(`*🌍 This command only works in groups!*\n\n> © Gᴇɴᴇʀᴀᴛᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ-xᴅ`)
-if (!isAdmins) { if (!isDev) return reply(`*⚠️ You need to be admin to use this!*\n\n> © Gᴇɴᴇʀᴀᴛᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ-xᴅ`),{quoted:mek }} 
-if (!isBotAdmins) return reply(`*🤖 Please make me admin first!*\n\n> © Gᴇɴᴇʀᴀᴛᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ-xᴅ`)
+if (!isGroup) return reply(`*🌍 This command only works in groups!*\n\n> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ xᴅ`)
+if (!isAdmins) { if (!isDev) return reply(`*⚠️ You need to be admin to use this!*\n\n> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ xᴅ`),{quoted:mek }} 
+if (!isBotAdmins) return reply(`*🤖 Please make me admin first!*\n\n> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ xᴅ`)
 
 const ppUrls = [
         'https://i.ibb.co/KhYC4FY/1221bc0bdd2354b42b293317ff2adbcf-icon.png',
@@ -557,8 +717,7 @@ const groupAdmins = participants.filter(p => p.admin);
 const listAdmin = groupAdmins.map((v, i) => `➤ @${v.id.split('@')[0]}`).join('\n');
 const owner = metadata.owner
 
-const gdata = `
-*〄━━━━[ GROUP INFO ]━━━━〄*
+const gdata = `*━━━━━━━ GROUP INFO ━━━━━━━*
 
 📛 *Name*: ${metadata.subject}
 🆔 *JID*: ${metadata.id}
@@ -569,8 +728,8 @@ const gdata = `
 *👮‍♂️ Admins List*:
 ${listAdmin}
 
-*〄━━━━━━━━━━━━━━━━〄*\n
-> © Gᴇɴᴇʀᴀᴛᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ-xᴅ`
+*━━━━━━━━━━━━━━━━━━━*\n
+> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ xᴅ`
 
 await conn.sendMessage(from, {
     image: { url: ppUrl },
@@ -581,6 +740,6 @@ await conn.sendMessage(from, {
 } catch (e) {
 await conn.sendMessage(from, { react: { text: '❌', key: mek.key } })
 console.log(e)
-reply(`*❌ Error Occurred!*\n\n${e}\n\n> © Gᴇɴᴇʀᴀᴛᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ-xᴅ`)
+reply(`*❌ Error Occurred!*\n\n${e}\n\n> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ xᴅ`)
 }
 })
