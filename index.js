@@ -305,334 +305,382 @@ console.log(chalk.cyan(summary.trim()));
     
             
 // =====================================
-	 
-  conn.ev.on('messages.update', async updates => {
-    for (const update of updates) {
-      if (update.update.message === null) {
-        console.log("Delete Detected:", JSON.stringify(update, null, 2));
-        await AntiDelete(conn, updates);
-      }
-    }
-  });
-
-// anti-call
-const callAttempts = new Map();
-const bannedUsers = new Map();
-
-conn.ev.on('call', async (calls) => {
-  try {
-    if (config.ANTI_CALL !== 'true') return;
-
-    for (const call of calls) {
-      if (call.status !== 'offer') continue;
-
-      const from = call.from;
-      const callId = call.id;
-
-      // Prevent multiple responses in same second
-      if (callAttempts.has(`${from}_cooldown`)) continue;
-      callAttempts.set(`${from}_cooldown`, true);
-      setTimeout(() => callAttempts.delete(`${from}_cooldown`), 5000); // 5s cooldown
-
-      // Reject the call
-      await conn.rejectCall(callId, from);
-
-      // Already banned
-      if (bannedUsers.has(from)) {
-        console.log(`🚫 Call from banned user ignored: ${from}`);
-        continue;
-      }
-
-      const attempts = callAttempts.get(from) || 0;
-      const newAttempts = attempts + 1;
-      callAttempts.set(from, newAttempts);
-
-      if (newAttempts >= 3) {
-        // Ban
-        await conn.updateBlockStatus(from, "block");
-        await conn.sendMessage(from, {
-          text: '*⛔ You have been banned for calling the bot multiple times.*\n*Contact the owner to get unbanned.*'
-        });
-
-        console.log(`🚫 Banned user for repeated calls: ${from}`);
-
-        // Store ban timestamp and schedule auto-unban in 24h
-        bannedUsers.set(from, Date.now());
-        setTimeout(async () => {
-          await conn.updateBlockStatus(from, "unblock");
-          bannedUsers.delete(from);
-          callAttempts.delete(from);
-          console.log(`✅ Auto-unbanned: ${from}`);
-        }, 24 * 60 * 60 * 1000); // 24 hours
-      } else {
-        // Send warning
-        await conn.sendMessage(from, {
-          text: config.REJECT_MSG || `*📵 Calls are not allowed. (${newAttempts}/3 warnings)*`
-        });
-        console.log(`⚠️ Call warning ${newAttempts}/3 sent to ${from}`);
-      }
-
-      // Auto-clear normal call attempts after 30 minutes
-      setTimeout(() => {
-        if (!bannedUsers.has(from)) callAttempts.delete(from);
-      }, 30 * 60 * 1000); // 30 min
-    }
-  } catch (err) {
-    console.error("❌ Anti-call error:", err);
-  }
-});
-
-
-	
-//=========WELCOME & GOODBYE =======
-	
-conn.ev.on('presence.update', async (update) => {
-    await PresenceControl(conn, update);
-});
-
-// always Online 
-
-conn.ev.on("presence.update", (update) => PresenceControl(conn, update));
-
-	
-BotActivityFilter(conn);	
-	
- /// READ STATUS       
-  conn.ev.on('messages.upsert', async(mek) => {
-    mek = mek.messages[0]
-    if (!mek.message) return
-    mek.message = (getContentType(mek.message) === 'ephemeralMessage') 
-    ? mek.message.ephemeralMessage.message 
-    : mek.message;
-    //console.log("New Message Detected:", JSON.stringify(mek, null, 2));
-  if (config.READ_MESSAGE === 'true') {
-    await conn.readMessages([mek.key]);  // Mark message as read
-    console.log(`Marked message from ${mek.key.remoteJid} as read.`);
-  }
-    if(mek.message.viewOnceMessageV2)
-    mek.message = (getContentType(mek.message) === 'ephemeralMessage') ? mek.message.ephemeralMessage.message : mek.message
-    if (mek.key && mek.key.remoteJid === 'status@broadcast' && config.AUTO_STATUS_SEEN === "true"){
-      await conn.readMessages([mek.key])
-    }
-
-            //================== AUTO REACT ==============
-const newsletterJids = [
-      "120363402507750390@newsletter", // Main Channel
-  "120363419136706156@newsletter", // Secondary Channel
-  "120363420267586200@newsletter"  // Tertiary Channel
-];
-const emojis = ["❤️", "🔥", "😯"];
-
-if (mek.key && newsletterJids.includes(mek.key.remoteJid)) {
+	 conn.ev.on('messages.upsert', async (mek) => {
     try {
-        const serverId = mek.newsletterServerId;
-        if (serverId) {
-            const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-            await conn.newsletterReactMessage(mek.key.remoteJid, serverId.toString(), emoji);
-            console.log("Reacted to channel message with", emoji);
+        mek = mek.messages[0];
+        if (!mek.message) return;
+        mek.message = (getContentType(mek.message) === 'ephemeralMessage') 
+            ? mek.message.ephemeralMessage.message 
+            : mek.message;
+
+        // Mark message as read if enabled
+        if (config.READ_MESSAGE === 'true') {
+            await conn.readMessages([mek.key]);
+            console.log(chalk.cyan(`[ 📖 ] Marked message from ${mek.key.remoteJid} as read.`));
         }
-    } catch (e) {
-        console.error("Error reacting to channel message:", e);
-    }
-}
-        
 
-            
-if (mek.key && mek.key.remoteJid === 'status@broadcast' && config.AUTO_STATUS_REACT === "true"){
-    const kingmalvin = await conn.decodeJid(conn.user.id);
-    const emojis =  ['❤️', '💸', '😇', '🍂', '💥', '💯', '🔥', '💫', '💎', '💗', '🤍', '🖤', '👀', '🙌', '🙆', '🚩', '🥰', '💐', '😎', '🤎', '✅', '🫀', '🧡', '😁', '😄', '🌸', '🕊️', '🌷', '⛅', '🌟', '🗿', '🇵🇰', '💜', '💙', '🌝', '🖤', '💚'];
-    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-    await conn.sendMessage(mek.key.remoteJid, {
-      react: {
-        text: randomEmoji,
-        key: mek.key,
-      } 
-    }, { statusJidList: [mek.key.participant, kingmalvin] });
-  }                       
-  if (mek.key && mek.key.remoteJid === 'status@broadcast' && config.AUTO_STATUS_REPLY === "true"){
-  const user = mek.key.participant
-  const text = `${config.AUTO_STATUS_MSG}`
-  await conn.sendMessage(user, { text: text, react: { text: '💜', key: mek.key } }, { quoted: mek })
+        // Handle view-once messages
+        if (mek.message.viewOnceMessageV2) {
+            mek.message = (getContentType(mek.message) === 'ephemeralMessage') 
+                ? mek.message.ephemeralMessage.message 
+                : mek.message;
+        }
+
+        // Auto-read status
+        if (mek.key && mek.key.remoteJid === 'status@broadcast' && config.AUTO_STATUS_SEEN === "true") {
+            await conn.readMessages([mek.key]);
+            console.log(chalk.cyan(`[ 📺 ] Auto-read status from ${mek.key.participant}.`));
+        }
+
+        // Auto-react for newsletters
+        const newsletterJids = [
+            "120363402507750390@newsletter",
+            "120363419136706156@newsletter",
+            "120363420267586200@newsletter"
+        ];
+        const emojis = ["❤️", "🔥", "😯"];
+        if (mek.key && newsletterJids.includes(mek.key.remoteJid)) {
+            try {
+                const serverId = mek.newsletterServerId;
+                if (serverId) {
+                    const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+                    await conn.newsletterReactMessage(mek.key.remoteJid, serverId.toString(), emoji);
+                    console.log(chalk.cyan(`[ 😺 ] Reacted to newsletter ${mek.key.remoteJid} with ${emoji}`));
+                }
+            } catch (e) {
+                console.error(chalk.red(`[ ❌ ] Error reacting to newsletter: ${e.message}`));
             }
-            await Promise.all([
-              saveMessage(mek),
-            ]);
-  const m = sms(conn, mek)
-  const type = getContentType(mek.message)
-  const content = JSON.stringify(mek.message)
-  const from = mek.key.remoteJid
-  const quoted = type == 'extendedTextMessage' && mek.message.extendedTextMessage.contextInfo != null ? mek.message.extendedTextMessage.contextInfo.quotedMessage || [] : []
-  const body = (type === 'conversation') ? mek.message.conversation : (type === 'extendedTextMessage') ? mek.message.extendedTextMessage.text : (type == 'imageMessage') && mek.message.imageMessage.caption ? mek.message.imageMessage.caption : (type == 'videoMessage') && mek.message.videoMessage.caption ? mek.message.videoMessage.caption : ''
-  const prefix = getPrefix(); // get the current prefix dynamically
-  const isCmd = body.startsWith(prefix)
-  var budy = typeof mek.text == 'string' ? mek.text : false;
-  const command = isCmd ? body.slice(prefix.length).trim().split(' ').shift().toLowerCase() : ''
-  const args = body.trim().split(/ +/).slice(1)
-  const q = args.join(' ')
-  const text = args.join(' ')
-  const isGroup = from.endsWith('@g.us')
-  const sender = mek.key.fromMe ? (conn.user.id.split(':')[0]+'@s.whatsapp.net' || conn.user.id) : (mek.key.participant || mek.key.remoteJid)
-  const senderNumber = sender.split('@')[0]
-  const botNumber = conn.user.id.split(':')[0]
-  const pushname = mek.pushName || 'Sin Nombre'
-  const isMe = botNumber.includes(senderNumber)
-  const isOwner = ownerNumber.includes(senderNumber) || isMe
-  const botNumber2 = await jidNormalizedUser(conn.user.id);
-  const groupMetadata = isGroup ? await conn.groupMetadata(from).catch(e => {}) : ''
-  const groupName = isGroup ? groupMetadata.subject : ''
-  const participants = isGroup ? await groupMetadata.participants : ''
-  const groupAdmins = isGroup ? await getGroupAdmins(participants) : ''
-  const isBotAdmins = isGroup ? groupAdmins.includes(botNumber2) : false
-  const isAdmins = isGroup ? groupAdmins.includes(sender) : false
-  const isReact = m.message.reactionMessage ? true : false
-  const reply = (teks) => {
-  conn.sendMessage(from, { text: teks }, { quoted: mek })
-  }
-  
-  const udp = botNumber.split('@')[0];
-    const king = ('263714757857', '263776388689', '263780934873');
-    
-    const ownerFilev2 = JSON.parse(fs.readFileSync('./lib/sudo.json', 'utf-8'));  
-    
-    let isCreator = [udp, ...king, config.DEV + '@s.whatsapp.net', ...ownerFilev2]
-    .map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net') 
-    .includes(mek.sender);
-	  
+        }
 
-	  if (isCreator && mek.text.startsWith("&")) {
+        // Auto-react and reply to status
+        if (mek.key && mek.key.remoteJid === 'status@broadcast' && config.AUTO_STATUS_REACT === "true") {
+            const kingmalvin = await conn.decodeJid(conn.user.id);
+            const emojis = ['❤️', '💸', '😇', '🍂', '💥', '💯', '🔥', '💫', '💎', '💗', '🤍', '🖤', '👀', '🙌', '🙆', '🚩', '🥰', '💐', '😎', '🤎', '✅', '🫀', '🧡', '😁', '😄', '🌸', '🕊️', '🌷', '⛅', '🌟', '🗿', '🇵🇰', '💜', '💙', '🌝', '🖤', '💚'];
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            await conn.sendMessage(mek.key.remoteJid, {
+                react: { text: randomEmoji, key: mek.key }
+            }, { statusJidList: [mek.key.participant, kingmalvin] });
+            console.log(chalk.cyan(`[ 😺 ] Reacted to status from ${mek.key.participant} with ${randomEmoji}`));
+        }
+
+        if (mek.key && mek.key.remoteJid === 'status@broadcast' && config.AUTO_STATUS_REPLY === "true") {
+            const user = mek.key.participant;
+            const text = `${config.AUTO_STATUS_MSG}`;
+            await conn.sendMessage(user, { text: text, react: { text: '💜', key: mek.key } }, { quoted: mek });
+            console.log(chalk.cyan(`[ 📩 ] Replied to status from ${user} with message: ${text}`));
+        }
+
+        // Save message
+        await Promise.all([saveMessage(mek)]);
+
+        const m = sms(conn, mek);
+        const type = getContentType(mek.message);
+        const content = JSON.stringify(mek.message);
+        const from = mek.key.remoteJid;
+        const quoted = type == 'extendedTextMessage' && mek.message.extendedTextMessage.contextInfo != null ? mek.message.extendedTextMessage.contextInfo.quotedMessage || [] : [];
+        const body = (type === 'conversation') ? mek.message.conversation : 
+                    (type === 'extendedTextMessage') ? mek.message.extendedTextMessage.text : 
+                    (type == 'imageMessage' && mek.message.imageMessage.caption) ? mek.message.imageMessage.caption : 
+                    (type == 'videoMessage' && mek.message.videoMessage.caption) ? mek.message.videoMessage.caption : '';
+        const prefix = getPrefix();
+        const isCmd = body.startsWith(prefix);
+        const budy = typeof mek.text == 'string' ? mek.text : false;
+        const command = isCmd ? body.slice(prefix.length).trim().split(' ').shift().toLowerCase() : '';
+        const args = body.trim().split(/ +/).slice(1);
+        const q = args.join(' ');
+        const text = args.join(' ');
+        const isGroup = from.endsWith('@g.us');
+        const sender = mek.key.fromMe ? (conn.user.id.split(':')[0] + '@s.whatsapp.net' || conn.user.id) : (mek.key.participant || mek.key.remoteJid);
+        const senderNumber = sender.split('@')[0];
+        const botNumber = conn.user.id.split(':')[0];
+        const pushname = mek.pushName || 'Sin Nombre';
+        const isMe = botNumber.includes(senderNumber);
+        const isOwner = ownerNumber.includes(senderNumber) || isMe;
+        const botNumber2 = await jidNormalizedUser(conn.user.id);
+        const groupMetadata = isGroup ? await conn.groupMetadata(from).catch(e => {}) : '';
+        const groupName = isGroup ? groupMetadata.subject : '';
+        const participants = isGroup ? await groupMetadata.participants : '';
+        const groupAdmins = isGroup ? await getGroupAdmins(participants) : '';
+        const isBotAdmins = isGroup ? groupAdmins.includes(botNumber2) : false;
+        const isAdmins = isGroup ? groupAdmins.includes(sender) : false;
+        const isReact = m.message.reactionMessage ? true : false;
+        const reply = (teks) => conn.sendMessage(from, { text: teks }, { quoted: mek });
+
+        // Banned users check
+        const bannedUsers = JSON.parse(fs.readFileSync('./lib/ban.json', 'utf-8'));
+        const isBanned = bannedUsers.includes(sender);
+        if (isBanned) {
+            console.log(chalk.red(`[ 🚫 ] Ignored command from banned user: ${sender}`));
+            return;
+        }
+
+        // Owner check
+        const ownerFile = JSON.parse(fs.readFileSync('./lib/sudo.json', 'utf-8'));
+        const ownerNumberFormatted = `${config.OWNER_NUMBER}@s.whatsapp.net`;
+        const isFileOwner = ownerFile.includes(sender);
+        const isRealOwner = sender === ownerNumberFormatted || isMe || isFileOwner;
+
+        // Mode restrictions
+        if (!isRealOwner && config.MODE === "private") {
+            console.log(chalk.red(`[ 🚫 ] Ignored command in private mode from ${sender}`));
+            return;
+        }
+        if (!isRealOwner && isGroup && config.MODE === "inbox") {
+            console.log(chalk.red(`[ 🚫 ] Ignored command in group ${groupName} from ${sender} in inbox mode`));
+            return;
+        }
+        if (!isRealOwner && !isGroup && config.MODE === "groups") {
+            console.log(chalk.red(`[ 🚫 ] Ignored command in private chat from ${sender} in groups mode`));
+            return;
+        }
+
+        // Auto-react for all messages
+        if (!isReact && config.AUTO_REACT === 'true') {
+            const reactions = [
+                '🌼', '❤️', '💐', '🔥', '🏵️', '❄️', '🧊', '🐳', '💥', '🥀', '❤‍🔥', '🥹', '😩', '🫣', 
+                '🤭', '👻', '👾', '🫶', '😻', '🙌', '🫂', '🫀', '👩‍🦰', '🧑‍🦰', '👩‍⚕️', '🧑‍⚕️', '🧕', 
+                '👩‍🏫', '👨‍💻', '👰‍♀', '🦹🏻‍♀️', '🧟‍♀️', '🧟', '🧞‍♀️', '🧞', '🙅‍♀️', '💁‍♂️', '💁‍♀️', '🙆‍♀️', 
+                '🙋‍♀️', '🤷', '🤷‍♀️', '🤦', '🤦‍♀️', '💇‍♀️', '💇', '💃', '🚶‍♀️', '🚶', '🧶', '🧤', '👑', 
+                '💍', '👝', '💼', '🎒', '🥽', '🐻', '🐼', '🐭', '🐣', '🪿', '🦆', '🦊', '🦋', '🦄', 
+                '🪼', '🐋', '🐳', '🦈', '🐍', '🕊️', '🦦', '🦚', '🌱', '🍃', '🎍', '🌿', '☘️', '🍀', 
+                '🍁', '🪺', '🍄', '🍄‍🟫', '🪸', '🪨', '🌺', '🪷', '🪻', '🥀', '🌹', '🌷', '💐', '🌾', 
+                '🌸', '🌼', '🌻', '🌝', '🌚', '🌕', '🌎', '💫', '🔥', '☃️', '❄️', '🌨️', '🫧', '🍟', 
+                '🍫', '🧃', '🧊', '🪀', '🤿', '🏆', '🥇', '🥈', '🥉', '🎗️', '🤹', '🤹‍♀️', '🎧', '🎤', 
+                '🥁', '🧩', '🎯', '🚀', '🚁', '🗿', '🎙️', '⌛', '⏳', '💸', '💎', '⚙️', '⛓️', '🔪', 
+                '🧸', '🎀', '🪄', '🎈', '🎁', '🎉', '🏮', '🪩', '📩', '💌', '📤', '📦', '📊', '📈', 
+                '📑', '📉', '📂', '🔖', '🧷', '📌', '📝', '🔏', '🔐', '🩷', '❤️', '🧡', '💛', '💚', 
+                '🩵', '💙', '💜', '🖤', '🩶', '🤍', '🤎', '❤‍🔥', '❤‍🩹', '💗', '💖', '💘', '💝', '❌', 
+                '✅', '🔰', '〽️', '🌐', '🌀', '⤴️', '⤵️', '🔴', '🟢', '🟡', '🟠', '🔵', '🟣', '⚫', 
+                '⚪', '🟤', '🔇', '🔊', '📢', '🔕', '♥️', '🕐', '🚩', '🇵🇰'
+            ];
+            const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
+            m.react(randomReaction);
+            console.log(chalk.cyan(`[ 😺 ] Auto-reacted to message from ${sender} with ${randomReaction}`));
+        }
+
+        // Owner react
+        if (!isReact && senderNumber === botNumber && config.OWNER_REACT === 'true') {
+            const reactions = [
+                '🌼', '❤️', '💐', '🔥', '🏵️', '❄️', '🧊', '🐳', '💥', '🥀', '❤‍🔥', '🥹', '😩', '🫣', 
+                '🤭', '👻', '👾', '🫶', '😻', '🙌', '🫂', '🫀', '👩‍🦰', '🧑‍🦰', '👩‍⚕️', '🧑‍⚕️', '🧕', 
+                '👩‍🏫', '👨‍💻', '👰‍♀', '🦹🏻‍♀️', '🧟‍♀️', '🧟', '🧞‍♀️', '🧞', '🙅‍♀️', '💁‍♂️', '💁‍♀️', '🙆‍♀️', 
+                '🙋‍♀️', '🤷', '🤷‍♀️', '🤦', '🤦‍♀️', '💇‍♀️', '💇', '💃', '🚶‍♀️', '🚶', '🧶', '🧤', '👑', 
+                '💍', '👝', '💼', '🎒', '🥽', '🐻 ', '💸', '😇', '🍂', '💥', '💯', '🔥', '💫', '💎', '💗', 
+                '🤍', '🖤', '👀', '🙌', '🙆', '🚩', '🥰', '💐', '😎', '🤎', '✅', '🫀', '🧡', '😁', '😄', 
+                '🌸', '🕊️', '🌷', '⛅', '🌟', '🗿', '🇵🇰', '💜', '💙', '🌝', '🖤', '🎎', '🎏', '🎐', 
+                '⚽', '🧣', '🌿', '⛈️', '🌦️', '🌚', '🌝', '🙈', '🙉', '🦖', '🐤', '🎗️', '🥇', '👾', 
+                '🔫', '🐝', '🦋', '🍓', '🍫', '🍭', '🧁', '🧃', '🍿', '🍻', '🛬', '🫀', '🫠', '🐍', 
+                '🥀', '🌸', '🏵️', '🌻', '🍂', '🍁', '🍄', '🌾', '🌿', '🌱', '🍀', '🧋', '💒', '🏩', 
+                '🏗️', '🏰', '🏪', '🏟️', '🎗️', '🥇', '⛳', '📟', '🏮', '📍', '🔮', '🧿', '♻️', '⛵', 
+                '🚍', '🚔', '🛳️', '🚆', '🚤', '🚕', '🛺', '🚝', '🚈', '🏎️', '🏍️', '🛵', '🥂', '🍾', 
+                '🍧', '🐣', '🐥', '🦄', '🐯', '🐦', '🐬', '🐋', '🦆', '💈', '⛲', '⛩️', '🎈', '🎋', 
+                '🪀', '🧩', '👾', '💸', '💎', '🧮', '👒', '🧢', '🎀', '🧸', '👑', '〽️', '😳', '💀', 
+                '☠️', '👻', '🔥', '♥️', '👀', '🐼', '🐭', '🐣', '🪿', '🦆', '🦊', '🦋', '🦄', '🪼', 
+                '🐋', '🐳', '🦈', '🐍', '🕊️', '🦦', '🦚', '🌱', '🍃', '🎍', '🌿', '☘️', '🍀', '🍁', 
+                '🪺', '🍄', '🍄‍🟫', '🪸', '🪨', '🌺', '🪷', '🪻', '🥀', '🌹', '🌷', '💐', '🌾', '🌸', 
+                '🌼', '🌻', '🌝', '🌚', '🌕', '🌎', '💫', '🔥', '☃️', '❄️', '🌨️', '🫧', '🍟', '🍫', 
+                '🧃', '🧊', '🪀', '🤿', '🏆', '🥇', '🥈', '🥉', '🎗️', '🤹', '🤹‍♀️', '🎧', '🎤', '🥁', 
+                '🧩', '🎯', '🚀', '🚁', '🗿', '🎙️', '⌛', '⏳', '💸', '💎', '⚙️', '⛓️', '🔪', '🧸', 
+                '🎀', '🪄', '🎈', '🎁', '🎉', '🏮', '🪩', '📩', '💌', '📤', '📦', '📊', '📈', '📑', 
+                '📉', '📂', '🔖', '🧷', '📌', '📝', '🔏', '🔐', '🩷', '❤️', '🧡', '💛', '💚', '🩵', 
+                '💙', '💜', '🖤', '🩶', '🤍', '🤎', '❤‍🔥', '❤‍🩹', '💗', '💖', '💘', '💝', '❌', '✅', 
+                '🔰', '〽️', '🌐', '🌀', '⤴️', '⤵️', '🔴', '🟢', '🟡', '🟠', '🔵', '🟣', '⚫', '⚪', 
+                '🟤', '🔇', '🔊', '📢', '🔕', '♥️', '🕐', '🚩', '🇵🇰', '🧳', '🌉', '🌁', '🛤️', '🛣️', 
+                '🏚️', '🏠', '🏡', '🧀', '🍥', '🍮', '🍰', '🍦', '🍨', '🍧', '🥠', '🍡', '🧂', '🍯', 
+                '🍪', '🍩', '🍭', '🥮', '🍡'
+            ];
+            const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
+            m.react(randomReaction);
+            console.log(chalk.cyan(`[ 😺 ] Owner auto-reacted to message with ${randomReaction}`));
+        }
+
+        // Custom react
+        if (!isReact && config.CUSTOM_REACT === 'true') {
+            const reactions = (config.CUSTOM_REACT_EMOJIS || '🥲,😂,👍🏻,🙂,😔').split(',');
+            const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
+            m.react(randomReaction);
+            console.log(chalk.cyan(`[ 😺 ] Custom-reacted to message from ${sender} with ${randomReaction}`));
+        }
+
+        // Owner code execution with &
+        const udp = botNumber.split('@')[0];
+        const king = ['263714757857', '263776388689', '263780934873'];
+        const ownerFilev2 = JSON.parse(fs.readFileSync('./lib/sudo.json', 'utf-8'));  
+        let isCreator = [udp, ...king, config.DEV + '@s.whatsapp.net', ...ownerFilev2]
+            .map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net')
+            .includes(sender);
+
+        if (isCreator && mek.text.startsWith("&")) {
             let code = budy.slice(2);
             if (!code) {
                 reply(`Provide me with a query to run Master!`);
+                console.log(chalk.red(`[ ❌ ] No code provided for & command by ${sender}`));
                 return;
             }
             const { spawn } = require("child_process");
             try {
+                console.log(chalk.cyan(`[ 📡 ] Executing shell command: ${code} by ${sender}`));
                 let resultTest = spawn(code, { shell: true });
                 resultTest.stdout.on("data", data => {
                     reply(data.toString());
+                    console.log(chalk.green(`[ ✅ ] Command output: ${data.toString()}`));
                 });
                 resultTest.stderr.on("data", data => {
                     reply(data.toString());
+                    console.log(chalk.red(`[ ❌ ] Command error: ${data.toString()}`));
                 });
                 resultTest.on("error", data => {
                     reply(data.toString());
+                    console.log(chalk.red(`[ ❌ ] Command execution failed: ${data.toString()}`));
                 });
                 resultTest.on("close", code => {
                     if (code !== 0) {
                         reply(`command exited with code ${code}`);
+                        console.log(chalk.red(`[ ❌ ] Command exited with code ${code}`));
                     }
                 });
             } catch (err) {
                 reply(util.format(err));
+                console.log(chalk.red(`[ ❌ ] Error executing & command: ${err.message}`));
             }
             return;
         }
 
-  //==========public react============//
-  
-// Auto React for all messages (public and owner)
-if (!isReact && config.AUTO_REACT === 'true') {
-    const reactions = [
-        '🌼', '❤️', '💐', '🔥', '🏵️', '❄️', '🧊', '🐳', '💥', '🥀', '❤‍🔥', '🥹', '😩', '🫣', 
-        '🤭', '👻', '👾', '🫶', '😻', '🙌', '🫂', '🫀', '👩‍🦰', '🧑‍🦰', '👩‍⚕️', '🧑‍⚕️', '🧕', 
-        '👩‍🏫', '👨‍💻', '👰‍♀', '🦹🏻‍♀️', '🧟‍♀️', '🧟', '🧞‍♀️', '🧞', '🙅‍♀️', '💁‍♂️', '💁‍♀️', '🙆‍♀️', 
-        '🙋‍♀️', '🤷', '🤷‍♀️', '🤦', '🤦‍♀️', '💇‍♀️', '💇', '💃', '🚶‍♀️', '🚶', '🧶', '🧤', '👑', 
-        '💍', '👝', '💼', '🎒', '🥽', '🐻', '🐼', '🐭', '🐣', '🪿', '🦆', '🦊', '🦋', '🦄', 
-        '🪼', '🐋', '🐳', '🦈', '🐍', '🕊️', '🦦', '🦚', '🌱', '🍃', '🎍', '🌿', '☘️', '🍀', 
-        '🍁', '🪺', '🍄', '🍄‍🟫', '🪸', '🪨', '🌺', '🪷', '🪻', '🥀', '🌹', '🌷', '💐', '🌾', 
-        '🌸', '🌼', '🌻', '🌝', '🌚', '🌕', '🌎', '💫', '🔥', '☃️', '❄️', '🌨️', '🫧', '🍟', 
-        '🍫', '🧃', '🧊', '🪀', '🤿', '🏆', '🥇', '🥈', '🥉', '🎗️', '🤹', '🤹‍♀️', '🎧', '🎤', 
-        '🥁', '🧩', '🎯', '🚀', '🚁', '🗿', '🎙️', '⌛', '⏳', '💸', '💎', '⚙️', '⛓️', '🔪', 
-        '🧸', '🎀', '🪄', '🎈', '🎁', '🎉', '🏮', '🪩', '📩', '💌', '📤', '📦', '📊', '📈', 
-        '📑', '📉', '📂', '🔖', '🧷', '📌', '📝', '🔏', '🔐', '🩷', '❤️', '🧡', '💛', '💚', 
-        '🩵', '💙', '💜', '🖤', '🩶', '🤍', '🤎', '❤‍🔥', '❤‍🩹', '💗', '💖', '💘', '💝', '❌', 
-        '✅', '🔰', '〽️', '🌐', '🌀', '⤴️', '⤵️', '🔴', '🟢', '🟡', '🟠', '🔵', '🟣', '⚫', 
-        '⚪', '🟤', '🔇', '🔊', '📢', '🔕', '♥️', '🕐', '🚩', '🇵🇰'
-    ];
+        // Command execution with logging
+        const events = require('./malvin');
+        const cmdName = isCmd ? body.slice(prefix.length).trim().split(" ")[0].toLowerCase() : false;
+        if (isCmd) {
+            const cmd = events.commands.find((cmd) => cmd.pattern === cmdName) || 
+                       events.commands.find((cmd) => cmd.alias && cmd.alias.includes(cmdName));
+            if (cmd) {
+                // Log command detection
+                console.log(chalk.cyan(
+                    `[ 📡 ] Command Detected: ${prefix}${cmdName}\n` +
+                    `├── Sender: ${pushname} (${sender})\n` +
+                    `├── Chat: ${isGroup ? `Group (${groupName})` : 'Private'}\n` +
+                    `├── Args: ${args.join(' ') || 'None'}\n` +
+                    `├── Time: ${new Date().toLocaleString('en-US', { timeZone: 'Africa/Harare' })}\n` +
+                    `└── Status: Processing`
+                ));
 
-    const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
-    m.react(randomReaction);
-}
+                // Apply command reaction if specified
+                if (cmd.react) {
+                    await conn.sendMessage(from, { react: { text: cmd.react, key: mek.key } });
+                    console.log(chalk.cyan(`[ 😺 ] Applied command reaction: ${cmd.react} for ${prefix}${cmdName}`));
+                }
 
-// owner react
+                try {
+                    // Execute command
+                    await cmd.function(conn, mek, m, {
+                        from, quoted, body, isCmd, command, args, q, text, 
+                        isGroup, sender, senderNumber, botNumber2, botNumber, 
+                        pushname, isMe, isOwner, isCreator, groupMetadata, 
+                        groupName, participants, groupAdmins, isBotAdmins, 
+                        isAdmins, reply
+                    });
+                    // Log successful execution
+                    console.log(chalk.green(
+                        `[ ✅ ] Command Executed: ${prefix}${cmdName}\n` +
+                        `├── Sender: ${pushname} (${sender})\n` +
+                        `├── Chat: ${isGroup ? `Group (${groupName})` : 'Private'}\n` +
+                        `└── Time: ${new Date().toLocaleString('en-US', { timeZone: 'Africa/Harare' })}`
+                    ));
+                } catch (e) {
+                    // Log error
+                    console.error(chalk.red(
+                        `[ ❌ ] Command Error: ${prefix}${cmdName}\n` +
+                        `├── Sender: ${pushname} (${sender})\n` +
+                        `├── Chat: ${isGroup ? `Group (${groupName})` : 'Private'}\n` +
+                        `├── Error: ${e.message}\n` +
+                        `└── Time: ${new Date().toLocaleString('en-US', { timeZone: 'Africa/Harare' })}`
+                    ));
+                    reply(`Error executing command: ${e.message}`);
+                }
+            } else {
+                // Log unknown command
+                console.log(chalk.yellow(
+                    `[ ⚠️ ] Unknown Command: ${prefix}${cmdName}\n` +
+                    `├── Sender: ${pushname} (${sender})\n` +
+                    `├── Chat: ${isGroup ? `Group (${groupName})` : 'Private'}\n` +
+                    `└── Time: ${new Date().toLocaleString('en-US', { timeZone: 'Africa/Harare' })}`
+                ));
+            }
+        }
 
-  // Owner React
-  if (!isReact && senderNumber === botNumber) {
-      if (config.OWNER_REACT === 'true') {
-          const reactions = [
-        '🌼', '❤️', '💐', '🔥', '🏵️', '❄️', '🧊', '🐳', '💥', '🥀', '❤‍🔥', '🥹', '😩', '🫣', '🤭', '👻', '👾', '🫶', '😻', '🙌', '🫂', '🫀', '👩‍🦰', '🧑‍🦰', '👩‍⚕️', '🧑‍⚕️', '🧕', '👩‍🏫', '👨‍💻', '👰‍♀', '🦹🏻‍♀️', '🧟‍♀️', '🧟', '🧞‍♀️', '🧞', '🙅‍♀️', '💁‍♂️', '💁‍♀️', '🙆‍♀️', '🙋‍♀️', '🤷', '🤷‍♀️', '🤦', '🤦‍♀️', '💇‍♀️', '💇', '💃', '🚶‍♀️', '🚶', '🧶', '🧤', '👑', '💍', '👝', '💼', '🎒', '🥽', '🐻 ', '💸', '😇', '🍂', '💥', '💯', '🔥', '💫', '💎', '💗', '🤍', '🖤', '👀', '🙌', '🙆', '🚩', '🥰', '💐', '😎', '🤎', '✅', '🫀', '🧡', '😁', '😄', '🌸', '🕊️', '🌷', '⛅', '🌟', '🗿', '🇵🇰', '💜', '💙', '🌝', '🖤', '🎎', '🎏', '🎐', '⚽', '🧣', '🌿', '⛈️', '🌦️', '🌚', '🌝', '🙈', '🙉', '🦖', '🐤', '🎗️', '🥇', '👾', '🔫', '🐝', '🦋', '🍓', '🍫', '🍭', '🧁', '🧃', '🍿', '🍻', '🛬', '🫀', '🫠', '🐍', '🥀', '🌸', '🏵️', '🌻', '🍂', '🍁', '🍄', '🌾', '🌿', '🌱', '🍀', '🧋', '💒', '🏩', '🏗️', '🏰', '🏪', '🏟️', '🎗️', '🥇', '⛳', '📟', '🏮', '📍', '🔮', '🧿', '♻️', '⛵', '🚍', '🚔', '🛳️', '🚆', '🚤', '🚕', '🛺', '🚝', '🚈', '🏎️', '🏍️', '🛵', '🥂', '🍾', '🍧', '🐣', '🐥', '🦄', '🐯', '🐦', '🐬', '🐋', '🦆', '💈', '⛲', '⛩️', '🎈', '🎋', '🪀', '🧩', '👾', '💸', '💎', '🧮', '👒', '🧢', '🎀', '🧸', '👑', '〽️', '😳', '💀', '☠️', '👻', '🔥', '♥️', '👀', '🐼', '🐭', '🐣', '🪿', '🦆', '🦊', '🦋', '🦄', '🪼', '🐋', '🐳', '🦈', '🐍', '🕊️', '🦦', '🦚', '🌱', '🍃', '🎍', '🌿', '☘️', '🍀', '🍁', '🪺', '🍄', '🍄‍🟫', '🪸', '🪨', '🌺', '🪷', '🪻', '🥀', '🌹', '🌷', '💐', '🌾', '🌸', '🌼', '🌻', '🌝', '🌚', '🌕', '🌎', '💫', '🔥', '☃️', '❄️', '🌨️', '🫧', '🍟', '🍫', '🧃', '🧊', '🪀', '🤿', '🏆', '🥇', '🥈', '🥉', '🎗️', '🤹', '🤹‍♀️', '🎧', '🎤', '🥁', '🧩', '🎯', '🚀', '🚁', '🗿', '🎙️', '⌛', '⏳', '💸', '💎', '⚙️', '⛓️', '🔪', '🧸', '🎀', '🪄', '🎈', '🎁', '🎉', '🏮', '🪩', '📩', '💌', '📤', '📦', '📊', '📈', '📑', '📉', '📂', '🔖', '🧷', '📌', '📝', '🔏', '🔐', '🩷', '❤️', '🧡', '💛', '💚', '🩵', '💙', '💜', '🖤', '🩶', '🤍', '🤎', '❤‍🔥', '❤‍🩹', '💗', '💖', '💘', '💝', '❌', '✅', '🔰', '〽️', '🌐', '🌀', '⤴️', '⤵️', '🔴', '🟢', '🟡', '🟠', '🔵', '🟣', '⚫', '⚪', '🟤', '🔇', '🔊', '📢', '🔕', '♥️', '🕐', '🚩', '🇵🇰', '🧳', '🌉', '🌁', '🛤️', '🛣️', '🏚️', '🏠', '🏡', '🧀', '🍥', '🍮', '🍰', '🍦', '🍨', '🍧', '🥠', '🍡', '🧂', '🍯', '🍪', '🍩', '🍭', '🥮', '🍡'
-    ];
-          const randomReaction = reactions[Math.floor(Math.random() * reactions.length)]; // 
-          m.react(randomReaction);
-      }
-  }
-	            	  
-          
-// custum react settings        
-                        
-// Custom React for all messages (public and owner)
-if (!isReact && config.CUSTOM_REACT === 'true') {
-    // Use custom emojis from the configuration (fallback to default if not set)
-    const reactions = (config.CUSTOM_REACT_EMOJIS || '🥲,😂,👍🏻,🙂,😔').split(',');
-    const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
-    m.react(randomReaction);
-}
-
-// ban users 
-
-const bannedUsers = JSON.parse(fs.readFileSync('./lib/ban.json', 'utf-8'));
-        const isBanned = bannedUsers.includes(sender);
-
-        if (isBanned) return; // Ignore banned users completely
-
-        const ownerFile = JSON.parse(fs.readFileSync('./lib/sudo.json', 'utf-8')); // Read file
-        
-const ownerNumberFormatted = `${config.OWNER_NUMBER}@s.whatsapp.net`;
-// Check if the sender exists in owner.json
-
-const isFileOwner = ownerFile.includes(sender);
-const isRealOwner = sender === ownerNumberFormatted || isMe || isFileOwner;
-// Apply conditions based on owner status
-
-        if (!isRealOwner && config.MODE === "private") return;
-        if (!isRealOwner && isGroup && config.MODE === "inbox") return;
-        if (!isRealOwner && !isGroup && config.MODE === "groups") return;
-
-	  
-	  // take commands 
-                 
-  const events = require('./malvin')
-  const cmdName = isCmd ? body.slice(1).trim().split(" ")[0].toLowerCase() : false;
-  if (isCmd) {
-  const cmd = events.commands.find((cmd) => cmd.pattern === (cmdName)) || events.commands.find((cmd) => cmd.alias && cmd.alias.includes(cmdName))
-  if (cmd) {
-  if (cmd.react) conn.sendMessage(from, { react: { text: cmd.react, key: mek.key }})
-  
-  try {
-  cmd.function(conn, mek, m,{from, quoted, body, isCmd, command, args, q, text, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, isCreator, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply});
-  } catch (e) {
-  console.error("[PLUGIN ERROR] " + e);
-  }
-  }
-  }
-  events.commands.map(async(command) => {
-  if (body && command.on === "body") {
-  command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, text, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, isCreator, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply})
-  } else if (mek.q && command.on === "text") {
-  command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, text, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, isCreator, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply})
-  } else if (
-  (command.on === "image" || command.on === "photo") &&
-  mek.type === "imageMessage"
-  ) {
-  command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, text, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, isCreator, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply})
-  } else if (
-  command.on === "sticker" &&
-  mek.type === "stickerMessage"
-  ) {
-  command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, text, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, isCreator, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply})
-  }});
-  
-  });
+        // Handle non-command events
+        events.commands.forEach(async (command) => {
+            try {
+                if (body && command.on === "body") {
+                    console.log(chalk.cyan(
+                        `[ 📡 ] Body Event Triggered: ${command.pattern || command.on}\n` +
+                        `├── Sender: ${pushname} (${sender})\n` +
+                        `├── Chat: ${isGroup ? `Group (${groupName})` : 'Private'}\n` +
+                        `└── Time: ${new Date().toLocaleString('en-US', { timeZone: 'Africa/Harare' })}`
+                    ));
+                    await command.function(conn, mek, m, {
+                        from, l, quoted, body, isCmd, command, args, q, text, 
+                        isGroup, sender, senderNumber, botNumber2, botNumber, 
+                        pushname, isMe, isOwner, isCreator, groupMetadata, 
+                        groupName, participants, groupAdmins, isBotAdmins, 
+                        isAdmins, reply
+                    });
+                } else if (mek.q && command.on === "text") {
+                    console.log(chalk.cyan(
+                        `[ 📡 ] Text Event Triggered: ${command.pattern || command.on}\n` +
+                        `├── Sender: ${pushname} (${sender})\n` +
+                        `├── Chat: ${isGroup ? `Group (${groupName})` : 'Private'}\n` +
+                        `└── Time: ${new Date().toLocaleString('en-US', { timeZone: 'Africa/Harare' })}`
+                    ));
+                    await command.function(conn, mek, m, {
+                        from, l, quoted, body, isCmd, command, args, q, text, 
+                        isGroup, sender, senderNumber, botNumber2, botNumber, 
+                        pushname, isMe, isOwner, isCreator, groupMetadata, 
+                        groupName, participants, groupAdmins, isBotAdmins, 
+                        isAdmins, reply
+                    });
+                } else if ((command.on === "image" || command.on === "photo") && mek.type === "imageMessage") {
+                    console.log(chalk.cyan(
+                        `[ 📡 ] Image Event Triggered: ${command.pattern || command.on}\n` +
+                        `├── Sender: ${pushname} (${sender})\n` +
+                        `├── Chat: ${isGroup ? `Group (${groupName})` : 'Private'}\n` +
+                        `└── Time: ${new Date().toLocaleString('en-US', { timeZone: 'Africa/Harare' })}`
+                    ));
+                    await command.function(conn, mek, m, {
+                        from, l, quoted, body, isCmd, command, args, q, text, 
+                        isGroup, sender, senderNumber, botNumber2, botNumber, 
+                        pushname, isMe, isOwner, isCreator, groupMetadata, 
+                        groupName, participants, groupAdmins, isBotAdmins, 
+                        isAdmins, reply
+                    });
+                } else if (command.on === "sticker" && mek.type === "stickerMessage") {
+                    console.log(chalk.cyan(
+                        `[ 📡 ] Sticker Event Triggered: ${command.pattern || command.on}\n` +
+                        `├── Sender: ${pushname} (${sender})\n` +
+                        `├── Chat: ${isGroup ? `Group (${groupName})` : 'Private'}\n` +
+                        `└── Time: ${new Date().toLocaleString('en-US', { timeZone: 'Africa/Harare' })}`
+                    ));
+                    await command.function(conn, mek, m, {
+                        from, l, quoted, body, isCmd, command, args, q, text, 
+                        isGroup, sender, senderNumber, botNumber2, botNumber, 
+                        pushname, isMe, isOwner, isCreator, groupMetadata, 
+                        groupName, participants, groupAdmins, isBotAdmins, 
+                        isAdmins, reply
+                    });
+                }
+            } catch (e) {
+                console.error(chalk.red(
+                    `[ ❌ ] Error in Event Handler: ${command.pattern || command.on}\n` +
+                    `├── Sender: ${pushname} (${sender})\n` +
+                    `├── Chat: ${isGroup ? `Group (${groupName})` : 'Private'}\n` +
+                    `├── Error: ${e.message}\n` +
+                    `└── Time: ${new Date().toLocaleString('en-US', { timeZone: 'Africa/Harare' })}`
+                ));
+            }
+        });
+    } catch (e) {
+        console.error(chalk.red(`[ ❌ ] Error in messages.upsert: ${e.message}`));
+    }
+});
     //===================================================   
     conn.decodeJid = jid => {
       if (!jid) return jid;
