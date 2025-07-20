@@ -4,52 +4,52 @@ const Jimp = require("jimp");
 malvin({
   pattern: "fullpp",
   alias: ["setpp", "setdp", "pp"],
+  desc: "Set a full image as bot's profile picture",
   react: "🖼️",
-  desc: "Set full image as bot's profile picture",
   category: "tools",
-  filename: __filename
-}, async (client, message, match, { from, isCreator }) => {
+  filename: __filename,
+}, async (conn, m, match, { from, isCreator }) => {
   try {
-    // Get bot's JID (two possible methods)
-    const botJid = client.user?.id || (client.user.id.split(":")[0] + "@s.whatsapp.net");
-    
-    // Allow both bot owner and bot itself to use the command
-    if (message.sender !== botJid && !isCreator) {
-      return await client.sendMessage(from, {
-        text: "*📛 This command can only be used by the bot or its owner.*"
-      }, { quoted: message });
+    const botJid = conn.user?.id?.split(":")[0] + "@s.whatsapp.net";
+
+    // Allow only bot owner or bot itself
+    if (m.sender !== botJid && !isCreator) {
+      return await conn.sendMessage(from, {
+        text: "*🚫 Only the bot owner or the bot itself can use this command.*",
+      }, { quoted: m });
     }
 
-    if (!message.quoted || !message.quoted.mtype || !message.quoted.mtype.includes("image")) {
-      return await client.sendMessage(from, {
-        text: "*⚠️ Please reply to an image to set as profile picture*"
-      }, { quoted: message });
+    if (!m.quoted || !m.quoted.mtype?.includes("image")) {
+      return await conn.sendMessage(from, {
+        text: "*⚠️ Please reply to an image to set as profile picture.*"
+      }, { quoted: m });
     }
 
-    await client.sendMessage(from, {
-      text: "*⏳ Processing image, please wait...*"
-    }, { quoted: message });
+    await conn.sendMessage(from, {
+      text: "*🖼️ Processing image, please wait...*"
+    }, { quoted: m });
 
-    const imageBuffer = await message.quoted.download();
-    const image = await Jimp.read(imageBuffer);
+    const mediaBuffer = await m.quoted.download();
+    const image = await Jimp.read(mediaBuffer);
 
-    // Image processing pipeline
-    const blurredBg = image.clone().cover(640, 640).blur(10);
-    const centeredImage = image.clone().contain(640, 640);
-    blurredBg.composite(centeredImage, 0, 0);
-    const finalImage = await blurredBg.getBufferAsync(Jimp.MIME_JPEG);
+    // Resize and blur background
+    const blurred = image.clone().cover(640, 640).blur(8);
+    const centered = image.clone().contain(640, 640);
+    blurred.composite(centered, 0, 0);
 
-    // Update profile picture
-    await client.updateProfilePicture(botJid, finalImage);
+    const processedImage = await blurred.getBufferAsync(Jimp.MIME_JPEG);
 
-    await client.sendMessage(from, {
-      text: "*✅ User profile picture updated successfully!*"
-    }, { quoted: message });
+    // Upload profile picture
+    await conn.updateProfilePicture(botJid, processedImage);
 
-  } catch (error) {
-    console.error("fullpp Error:", error);
-    await client.sendMessage(from, {
-      text: `*❌ Error updating profile picture:*\n${error.message}`
-    }, { quoted: message });
+    await conn.sendMessage(from, {
+      text: "*✅ Bot profile picture updated successfully!*"
+    }, { quoted: m });
+
+  } catch (err) {
+    console.error("FullPP Error:", err);
+    await conn.sendMessage(from, {
+      text: `*❌ Failed to update profile picture:*\n${err.message}`
+    }, { quoted: m });
   }
 });
