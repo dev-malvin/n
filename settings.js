@@ -78,9 +78,9 @@ module.exports = {
 
   // ===== CATEGORY-SPECIFIC IMAGE URLs =====
   MENU_IMAGES: {
-    '1': process.env.DOWNLOAD_MENU_IMAGE || "https://files.catbox.moe/download_menu.jpg", // Download Menu
-    '2': process.env.GROUP_MENU_IMAGE || "https://files.catbox.moe/group_menu.jpg",   // Group Menu
-    '3': process.env.FUN_MENU_IMAGE || "https://files.catbox.moe/fun_menu.jpg",       // Fun Menu
+    '1': process.env.DOWNLOAD_MENU_IMAGE || "https://files.catbox.moe/122liy.jpg", // Download Menu
+    '2': process.env.GROUP_MENU_IMAGE || "https://files.catbox.moe/bmze2e.jpg",   // Group Menu
+    '3': process.env.FUN_MENU_IMAGE || "https://files.catbox.moe/s6ol5l.jpg",       // Fun Menu
     '4': process.env.OWNER_MENU_IMAGE || "https://files.catbox.moe/owner_menu.jpg",   // Owner Menu
     '5': process.env.AI_MENU_IMAGE || "https://files.catbox.moe/ai_menu.jpg",         // AI Menu
     '6': process.env.ANIME_MENU_IMAGE || "https://files.catbox.moe/anime_menu.jpg",   // Anime Menu
