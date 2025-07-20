@@ -1,3 +1,4 @@
+/*
 const config = require('../settings');
 const { malvin, commands } = require('../malvin');
 const { runtime } = require('../lib/functions');
@@ -761,3 +762,4 @@ malvin({
         }
     }
 });
+*/
