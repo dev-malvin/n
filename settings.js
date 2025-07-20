@@ -1,3 +1,4 @@
+
 const fs = require('fs');
 const path = require('path');
 const { getConfig } = require('./lib/configdb');
@@ -14,68 +15,82 @@ function convertToBool(text, trueValue = 'true') {
 
 module.exports = {
   // ===== BOT CORE SETTINGS =====
-  SESSION_ID: settings.SESSION_ID || process.env.SESSION_ID || "", // Your bot's session ID (keep secure)
-  PREFIX: getConfig("PREFIX") || "." || settings.PREFIX , // Command prefix (e.g., ., /, !, *)
-  CHATBOT: getConfig("CHATBOT") || "on", // Chatbot mode: on/off
-  BOT_NAME: process.env.BOT_NAME || getConfig("BOT_NAME") || "ᴍᴀʟᴠɪɴ-xᴅ", // Bot display name
-  MODE: getConfig("MODE") || process.env.MODE || "private", // Bot mode: public/private/group/inbox
-  REPO: process.env.REPO || "https://github.com/XdKing2/MALVIN-XD", // Bot GitHub repo dont change this❗️
-  BAILEYS: process.env.BAILEYS || "@whiskeysockets/baileys", // Baileys version
+  SESSION_ID: settings.SESSION_ID || process.env.SESSION_ID || "",
+  PREFIX: getConfig("PREFIX") || "." || settings.PREFIX,
+  CHATBOT: getConfig("CHATBOT") || "on",
+  BOT_NAME: process.env.BOT_NAME || getConfig("BOT_NAME") || "ᴍᴀʟᴠɪɴ-xᴅ",
+  MODE: getConfig("MODE") || process.env.MODE || "private",
+  REPO: process.env.REPO || "https://github.com/XdKing2/MALVIN-XD",
+  BAILEYS: process.env.BAILEYS || "@whiskeysockets/baileys",
 
   // ===== OWNER & DEVELOPER SETTINGS =====
-  OWNER_NUMBER: settings.OWNER_NUMBER || process.env.OWNER_NUMBER || "263714757857", // Owner WhatsApp number
-  OWNER_NAME: process.env.OWNER_NAME || getConfig("OWNER_NAME") || "ᴍᴀʟᴠɪɴ ᴋɪɴɢ", // Owner name
-  DEV: process.env.DEV || "263714757857", // Developer contact number
-  DEVELOPER_NUMBER: '263714757857@s.whatsapp.net', // Developer WhatsApp ID
+  OWNER_NUMBER: settings.OWNER_NUMBER || process.env.OWNER_NUMBER || "263714757857",
+  OWNER_NAME: process.env.OWNER_NAME || getConfig("OWNER_NAME") || "ᴍᴀʟᴠɪɴ ᴋɪɴɢ",
+  DEV: process.env.DEV || "263714757857",
+  DEVELOPER_NUMBER: '263714757857@s.whatsapp.net',
 
   // ===== AUTO-RESPONSE SETTINGS =====
-  AUTO_REPLY: process.env.AUTO_REPLY || "false", // Enable auto-reply
-  AUTO_STATUS_REPLY: process.env.AUTO_STATUS_REPLY || "false", // Reply to status updates?
-  AUTO_STATUS_MSG: process.env.AUTO_STATUS_MSG || "*Just seen ur status 😆 🤖*", // Status reply message
-  READ_MESSAGE: process.env.READ_MESSAGE || "false", // Mark messages as read automatically?
-  REJECT_MSG: process.env.REJECT_MSG || "*📵 Calls are not allowed on this number unless you have permission. 🚫*", // Message on rejected call
+  AUTO_REPLY: process.env.AUTO_REPLY || "false",
+  AUTO_STATUS_REPLY: process.env.AUTO_STATUS_REPLY || "false",
+  AUTO_STATUS_MSG: process.env.AUTO_STATUS_MSG || "*Just seen ur status 😆 🤖*",
+  READ_MESSAGE: process.env.READ_MESSAGE || "false",
+  REJECT_MSG: process.env.REJECT_MSG || "*📵 Calls are not allowed on this number unless you have permission. 🚫*",
   ALIVE_IMG: process.env.ALIVE_IMG || "https://files.catbox.moe/xshsmk",
-// add img for alive msg
-
   LIVE_MSG: process.env.LIVE_MSG || "> ʙᴏᴛ ɪs sᴘᴀʀᴋɪɴɢ ᴀᴄᴛɪᴠᴇ ᴀɴᴅ ᴀʟɪᴠᴇ\n\n\nᴋᴇᴇᴘ ᴜsɪɴɢ ✦ᴍᴀʟᴠɪɴ xᴅ✦ ғʀᴏᴍ ᴍᴀʟᴠɪɴ ᴛᴇᴄʜ ɪɴᴄ⚡\n\n\n*© ᴡʜᴀᴛꜱᴀᴘᴘ ʙᴏᴛ - ᴍᴅ\n\n> ɢɪᴛʜᴜʙ :* github.com/XdKing2/MALVIN-XD",
-// add alive msg here 
 
   // ===== REACTION & STICKER SETTINGS =====
-  AUTO_REACT: process.env.AUTO_REACT || "false", // Auto-react to messages
-  OWNER_REACT: process.env.OWNER_REACT || "false", // Owner-specific reacts
-  CUSTOM_REACT: process.env.CUSTOM_REACT || "false", // Use custom emoji reactions
-  CUSTOM_REACT_EMOJIS: getConfig("CUSTOM_REACT_EMOJIS") || process.env.CUSTOM_REACT_EMOJIS || "💝,💖,💗,❤️‍🩹,❤️,🧡,💛,💚,💙,💜,🤎,🖤,🤍", // Custom react emojis
-  STICKER_NAME: process.env.STICKER_NAME || "ᴋʜᴀɴ-ᴍᴅ", // Sticker pack name
-  AUTO_STICKER: process.env.AUTO_STICKER || "false", // Auto-send stickers
+  AUTO_REACT: process.env.AUTO_REACT || "false",
+  OWNER_REACT: process.env.OWNER_REACT || "false",
+  CUSTOM_REACT: process.env.CUSTOM_REACT || "false",
+  CUSTOM_REACT_EMOJIS: getConfig("CUSTOM_REACT_EMOJIS") || process.env.CUSTOM_REACT_EMOJIS || "💝,💖,💗,❤️‍🩹,❤️,🧡,💛,💚,💙,💜,🤎,🖤,🤍",
+  STICKER_NAME: process.env.STICKER_NAME || "ᴋʜᴀɴ-ᴍᴅ",
+  AUTO_STICKER: process.env.AUTO_STICKER || "false",
 
   // ===== MEDIA & AUTOMATION =====
-  AUTO_RECORDING: process.env.AUTO_RECORDING || "false", // Auto-record voice notes
-  AUTO_TYPING: process.env.AUTO_TYPING || "false", // Show typing indicator
-  MENTION_REPLY: process.env.MENTION_REPLY || "false", // Reply when mentioned
-  MENU_IMAGE_URL: getConfig("MENU_IMAGE_URL") || "https://files.catbox.moe/qumhu4.jpg", // Menu image URL
+  AUTO_RECORDING: process.env.AUTO_RECORDING || "false",
+  AUTO_TYPING: process.env.AUTO_TYPING || "false",
+  MENTION_REPLY: process.env.MENTION_REPLY || "false",
+  MENU_IMAGE_URL: getConfig("MENU_IMAGE_URL") || "https://files.catbox.moe/qumhu4.jpg",
 
   // ===== SECURITY & ANTI-FEATURES =====
-  ANTI_DELETE: process.env.ANTI_DELETE || "true", // Recover deleted messages
-  ANTI_CALL: process.env.ANTI_CALL || "false", // Automatically reject calls
-  ANTI_BAD_WORD: process.env.ANTI_BAD_WORD || "false", // Block bad words
-  ANTI_LINK: process.env.ANTI_LINK || "true", // Block links in groups
-  ANTI_VV: process.env.ANTI_VV || "true", // Block view-once messages
-  DELETE_LINKS: process.env.DELETE_LINKS || "false", // Auto-delete links
-  ANTI_DEL_PATH: process.env.ANTI_DEL_PATH || "inbox", // Where to log deleted messages ('inbox' or 'same')
-  ANTI_BOT: process.env.ANTI_BOT || "true", // Block other bots?
-  PM_BLOCKER: process.env.PM_BLOCKER || "true", // Block private messages?
+  ANTI_DELETE: process.env.ANTI_DELETE || "true",
+  ANTI_CALL: process.env.ANTI_CALL || "false",
+  ANTI_BAD_WORD: process.env.ANTI_BAD_WORD || "false",
+  ANTI_LINK: process.env.ANTI_LINK || "true",
+  ANTI_VV: process.env.ANTI_VV || "true",
+  DELETE_LINKS: process.env.DELETE_LINKS || "false",
+  ANTI_DEL_PATH: process.env.ANTI_DEL_PATH || "inbox",
+  ANTI_BOT: process.env.ANTI_BOT || "true",
+  PM_BLOCKER: process.env.PM_BLOCKER || "true",
 
   // ===== BOT BEHAVIOR & APPEARANCE =====
-  DESCRIPTION: process.env.DESCRIPTION || "*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ-xᴅ*", // Bot description/footer
-  PUBLIC_MODE: process.env.PUBLIC_MODE || "true", // Allow public commands?
-  ALWAYS_ONLINE: process.env.ALWAYS_ONLINE || "false", // Show bot always online
-  AUTO_STATUS_REACT: process.env.AUTO_STATUS_REACT || "true", // React to status updates
-  AUTO_STATUS_SEEN: process.env.AUTO_STATUS_SEEN || "true", // Mark status as seen
-  AUTO_BIO: process.env.AUTO_BIO || "false", // Automatically update bio
-  WELCOME: process.env.WELCOME || "false", // Enable welcome messages
-  GOODBYE: process.env.GOODBYE || "false", // Enable goodbye messages
-  ADMIN_ACTION: process.env.ADMIN_ACTION || "false", // Show admin activity notifications
-  
-version: process.env.version || "1.0.0",
-  TIMEZONE: process.env.TIMEZONE || "Africa/Nairobi" // Default to UTC if not specified
+  DESCRIPTION: process.env.DESCRIPTION || "*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ-xᴅ*",
+  PUBLIC_MODE: process.env.PUBLIC_MODE || "true",
+  ALWAYS_ONLINE: process.env.ALWAYS_ONLINE || "false",
+  AUTO_STATUS_REACT: process.env.AUTO_STATUS_REACT || "true",
+  AUTO_STATUS_SEEN: process.env.AUTO_STATUS_SEEN || "true",
+  AUTO_BIO: process.env.AUTO_BIO || "false",
+  WELCOME: process.env.WELCOME || "false",
+  GOODBYE: process.env.GOODBYE || "false",
+  ADMIN_ACTION: process.env.ADMIN_ACTION || "false",
+  version: process.env.version || "1.0.0",
+  TIMEZONE: process.env.TIMEZONE || "Africa/Nairobi",
+
+  // ===== CATEGORY-SPECIFIC IMAGE URLs =====
+  MENU_IMAGES: {
+    '1': process.env.DOWNLOAD_MENU_IMAGE || "https://files.catbox.moe/download_menu.jpg", // Download Menu
+    '2': process.env.GROUP_MENU_IMAGE || "https://files.catbox.moe/group_menu.jpg",   // Group Menu
+    '3': process.env.FUN_MENU_IMAGE || "https://files.catbox.moe/fun_menu.jpg",       // Fun Menu
+    '4': process.env.OWNER_MENU_IMAGE || "https://files.catbox.moe/owner_menu.jpg",   // Owner Menu
+    '5': process.env.AI_MENU_IMAGE || "https://files.catbox.moe/ai_menu.jpg",         // AI Menu
+    '6': process.env.ANIME_MENU_IMAGE || "https://files.catbox.moe/anime_menu.jpg",   // Anime Menu
+    '7': process.env.CONVERT_MENU_IMAGE || "https://files.catbox.moe/convert_menu.jpg", // Convert Menu
+    '8': process.env.OTHER_MENU_IMAGE || "https://files.catbox.moe/other_menu.jpg",   // Other Menu
+    '9': process.env.REACTION_MENU_IMAGE || "https://files.catbox.moe/reaction_menu.jpg", // Reaction Menu
+    '10': process.env.MAIN_MENU_IMAGE || "https://files.catbox.moe/main_menu.jpg",    // Main Menu
+    '11': process.env.LOGO_MAKER_MENU_IMAGE || "https://files.catbox.moe/logo_maker_menu.jpg", // Logo Maker Menu
+    '12': process.env.SETTINGS_MENU_IMAGE || "https://files.catbox.moe/settings_menu.jpg", // Settings Menu
+    '13': process.env.AUDIO_MENU_IMAGE || "https://files.catbox.moe/audio_menu.jpg",  // Audio Menu
+    '14': process.env.PRIVACY_MENU_IMAGE || "https://files.catbox.moe/privacy_menu.jpg" // Privacy Menu
+  }
 };
