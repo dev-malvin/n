@@ -12,6 +12,7 @@ process.on("unhandledRejection", (reason, p) => {
 
 const axios = require('axios')
 const config = require('./settings')
+const timezones =require ('./settings')
 const {
     default: makeWASocket,
     useMultiFileAuthState,
