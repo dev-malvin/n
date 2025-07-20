@@ -11,8 +11,8 @@ process.on("unhandledRejection", (reason, p) => {
 // MALVIN XD CREATED BY MALVIN KING 🤴 
 
 const axios = require('axios')
-const config = require('./settings')
-const timezones =require ('./settings')
+const config = require('./settings');
+const timezones = config.TIMEZONE || 'Africa/Harare'; // Fallback to a default timezone
 const {
     default: makeWASocket,
     useMultiFileAuthState,
@@ -517,9 +517,18 @@ conn.ev.on('messages.upsert', async (mek) => {
         const cmdName = isCmd ? body.slice(prefix.length).trim().split(" ")[0].toLowerCase() : false;
         if (isCmd) {
             const cmd = events.commands.find((cmd) => cmd.pattern === cmdName) || 
-                       events.commands.find((cmd) => cmd.alias && cmd.alias.includes(cmdName));
+                        events.commands.find((cmd) => cmd.alias && cmd.alias.includes(cmdName));
             if (cmd) {
-                // Box-style log for command detection
+		    let timezones = config.TIMEZONE || 'Africa/Harare';
+
+// Validate timezone
+if (!moment.tz.zone(timezones)) {
+    console.error(chalk.red(`[❌] Invalid timezone: ${timezones}. Falling back to UTC.`));
+    timezones = 'UTC';
+}
+
+console.log(chalk.cyan(`[🕒] Using timezone: ${timezones}`));
+		    
                 const dayz = moment(Date.now()).tz(timezones).locale('en').format('dddd');
                 const timez = moment(Date.now()).tz(timezones).locale('en').format('HH:mm:ss z');
                 const datez = moment(Date.now()).tz(timezones).format("DD/MM/YYYY");
@@ -532,32 +541,6 @@ conn.ev.on('messages.upsert', async (mek) => {
                 lolcatjs.fromString(`│ 📍 Chat Type     : ${isGroup ? `Group (${groupName})` : 'Private'}`);
                 lolcatjs.fromString(`╰──────────────────────────────────────╯\n`);
 
-                // Apply command reaction if specified
-                if (cmd.react) {
-                    await conn.sendMessage(from, { react: { text: cmd.react, key: mek.key } });
-                    console.log(chalk.cyan(`[😺] Reaction: ${cmd.react} for ${prefix}${cmdName}`));
-                }
-
-                try {
-                    // Execute command
-                    await cmd.function(conn, mek, m, {
-                        from, quoted, body, isCmd, command, args, q, text, 
-                        isGroup, sender, senderNumber, botNumber2, botNumber, 
-                        pushname, isMe, isOwner, isCreator, groupMetadata, 
-                        groupName, participants, groupAdmins, isBotAdmins, 
-                        isAdmins, reply
-                    });
-                    // Log successful execution
-                    console.log(chalk.green(`[✅] Executed: ${prefix}${cmdName} by ${pushname} in ${isGroup ? `Group (${groupName})` : 'Private'}`));
-                } catch (e) {
-                    // Log error
-                    lolcatjs.fromString(`╭───❖ 𝐌𝐚𝐥𝐯𝐢𝐧-𝐗𝐃 𝐄𝐫𝐫𝐨𝐫 𝐋𝐨𝐠 ❖───╮`);
-                    lolcatjs.fromString(`│ 🕒 Time          : ${dayz}, ${timez}`);
-                    lolcatjs.fromString(`│ 💬 Command       : ${prefix}${cmdName}`);
-                    lolcatjs.fromString(`│ 🙍 Sender Name   : ${pushname || 'N/A'}`);
-                    lolcatjs.fromString(`│ 🆔 Chat ID       : ${from.split('@')[0]}`);
-                    lolcatjs.fromString(`│ ❗ Error         : ${e.message}`);
-                    lolcatjs.fromString(`╰──────────────────────────────────────╯\n`);
                     reply(`Error executing command: ${e.message}`);
                 }
             } else {
