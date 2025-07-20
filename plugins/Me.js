@@ -34,7 +34,7 @@ malvin({
 │ 🔄 ᴜᴘᴛɪᴍᴇ  : ${runtime(process.uptime())}
 │ 👑 ᴅᴇᴠ     : ᴍᴀʟᴠɪɴ ᴋɪɴɢ
 │ 🚀 ᴠᴇʀsɪᴏɴ : ${config.version}
-╰═✨🌟🌟🌟🌟🌟🌟🌟✨═╯
+╰═✨🌟🌟🌟🌟🌟🌟✨═╯
 
 📚 *ᴍᴇɴᴜ ɴᴀᴠɪɢᴀᴛɪᴏɴ:*
 > _ʀᴇᴘʟʏ ᴡɪᴛʜ ᴀ ɴᴜᴍʙᴇʀ ᴛᴏ ᴏᴘᴇɴ ᴀ ᴄᴀᴛᴇɢᴏʀʏ._
@@ -56,7 +56,7 @@ malvin({
 │ ⓭ 🎵  *ᴀᴜᴅɪᴏ ᴍᴇɴᴜ*
 │ ⓮ 🔒  *ᴘʀɪᴠᴀᴄʏ ᴍᴇɴᴜ*
 │
-╰═✨🌟🌟🌟🌟🌟🌟🌟✨═╯
+╰═✨🌟🌟🌟🌟🌟✨═╯
 
 💡 _ᴛʏᴘᴇ_ *${prefix}ᴀʟʟᴍᴇɴᴜ* _ᴛᴏ sᴇᴇ ᴇᴠᴇʀʏᴛʜɪɴɢ._
 
@@ -182,11 +182,11 @@ malvin({
 │ ➸ .pair
 │ ➸ .tts
 │
-╰═✨🌟🌟🌟🌟🌟🌟🌟🌟🌟✨═╯
+╰═✨🌟🌟🌟🌟🌟🌟🌟✨═╯
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['1'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/download_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['1'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/jw8h57.jpg'
             },
             '2': {
                 title: "👥 *Group Menu* 👥",
@@ -237,11 +237,11 @@ malvin({
 │ ⬢ .promote
 │ ⬢ .remove
 │
-╰═✨🔥🔥🔥🔥🔥🔥🔥🔥🔥✨═╯
+╰═✨🔥🔥🔥🔥🔥🔥🔥✨═╯
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['2'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/group_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['2'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/ceeo6k.jpg'
             },
             '3': {
                 title: "😄 *Fun Menu* 😄",
@@ -328,11 +328,11 @@ malvin({
 │ ✪ .sex
 │ ✪ .suspension
 │
-╰═✨🌟🌟🌟🌟🌟🌟🌟🌟🌟✨═╯
+╰═✨🌟🌟🌟🌟🌟🌟🌟✨═╯
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['3'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/fun_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['3'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/9qoecp.jpg'
             },
             '4': {
                 title: "👑 *Owner Menu* 👑",
@@ -391,11 +391,11 @@ malvin({
 │ ➟ .vv2
 │ ➟ .vv4
 │
-╰═✨🔥🔥🔥🔥🔥🔥🔥🔥🔥✨═╯
+╰═✨🔥🔥🔥🔥🔥🔥🔥✨═╯
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['4'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/owner_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['4'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/jw8h57.jpg'
             },
             '5': {
                 title: "🤖 *AI Menu* 🤖",
@@ -413,11 +413,11 @@ malvin({
 │ ⬣ .stabilityai
 │ ⬣ .stablediffusion
 │
-╰═✨🌟🌟🌟🌟🌟🌟✨═╯
+╰═✨🌟🌟🌟🌟✨═╯
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['5'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/ai_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['5'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/ceeo6k.jpg'
             },
             '6': {
                 title: "🎎 *Anime Menu* 🎎",
@@ -444,11 +444,11 @@ malvin({
 │ ⊸ .garl
 │ ⊸ .maid
 │
-╰═✨🔥🔥🔥🔥🔥🔥🔥✨═╯
+╰═✨🔥🔥🔥🔥🔥🔥✨═╯
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['6'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/anime_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['6'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/9qoecp.jpg'
             },
             '7': {
                 title: "🔄 *Convert Menu* 🔄",
@@ -483,11 +483,11 @@ malvin({
 │ ✷ .readmore
 │ ✷ .tinyurl
 │
-╰═✨🌟🌟🌟🌟🌟🌟🌟✨═╯
+╰═✨🌟🌟🌟🌟🌟✨═╯
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['7'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/convert_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['7'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/jw8h57.jpg'
             },
             '8': {
                 title: "📌 *Other Menu* 📌",
@@ -540,11 +540,11 @@ malvin({
 │ ├─ .remini
 │ ├─ .screenshot
 │
-╰═✨🔥🔥🔥🔥🔥🔥🔥🔥🔥✨═╯
+╰═✨🔥🔥🔥🔥🔥🔥🔥✨═╯
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['8'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/other_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['8'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/ceeo6k.jpg'
             },
             '9': {
                 title: "💞 *Reaction Menu* 💞",
@@ -583,11 +583,11 @@ malvin({
 │ ⬩ .smug
 │ ⬩ .yeet
 │
-╰═✨🌟🌟🌟🌟🌟🌟🌟✨═╯
+╰═✨🌟🌟🌟🌟🌟🌟✨═╯
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['9'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/reaction_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['9'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/122liy.jpg'
             },
             '10': {
                 title: "🏠 *Main Menu* 🏠",
@@ -629,7 +629,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['10'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/main_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['10'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/bmze2e.jpg'
             },
             '11': {
                 title: "🎨 *Logo Maker* 🎨",
@@ -679,11 +679,11 @@ malvin({
 │ ⬢ .paint
 │ ⬢ .tatoo
 │
-╰═✨🌟🌟🌟🌟🌟🌟🌟🌟🌟✨═╯
+╰═✨🌟🌟🌟🌟🌟🌟🌟✨═╯
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['11'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/logo_maker_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['11'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/s6ol5l.jpg'
             },
             '12': {
                 title: "⚙️ *Settings Menu* ⚙️",
@@ -726,11 +726,11 @@ malvin({
 │ 📝 *ᴘʀᴏғɪʟᴇ* 🧑
 │ ➢ .autobio
 │
-╰═✨🔥🔥🔥🔥🔥🔥🔥✨═╯
+╰═✨🔥🔥🔥🔥🔥🔥✨═╯
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['12'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/settings_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['12'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/9qoecp.jpg'
             },
             '13': {
                 title: "🎵 *Audio Menu* 🎵",
@@ -759,7 +759,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['13'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/audio_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['13'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/ceeo6k.jpg'
             },
             '14': {
                 title: "🔒 *Privacy Menu* 🔒",
@@ -782,7 +782,7 @@ malvin({
 
 > ${config.DESCRIPTION}`,
                 image: true,
-                imageUrl: config.MENU_IMAGES?.['14'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/privacy_menu.jpg'
+                imageUrl: config.MENU_IMAGES?.['14'] || config.MENU_IMAGE_URL || 'https://files.catbox.moe/jw8h57.jpg'
             }
         };
 
