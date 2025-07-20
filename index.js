@@ -91,15 +91,20 @@ const { getPrefix } = require("./lib/prefix");
 const ownerNumber = ["263780934873"];
 const app = express();
 const port = process.env.PORT || 7860;
-const tempDir = path.join(os.tmpdir(), "cache-temp");
 const sessionDir = path.join(__dirname, "sessions");
 const credsPath = path.join(sessionDir, "creds.json");
 
 // Ensure directories exist
-if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
-if (!fs.existsSync(sessionDir)) fs.mkdirSync(sessionDir, { recursive: true });
+
+
 
 // Clear temp directory every 5 minutes
+const tempDir = path.join(os.tmpdir, "cache-temp");
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir);
+  if (!fs.existsSync(sessionDir)) fs.mkdirSync(sessionDir, { recursive: true });
+}
+
 const clearTempDir = () => {
   fs.readdir(tempDir, (err, files) => {
     if (err) throw err;
